@@ -1,0 +1,628 @@
+/* Night Mode */
+
+[theme-color="dark"] {
+    background-color: $dark-primary;
+
+    .preview-iframe-wrapper {
+        background-color: #0C153B;
+    }
+
+    body,
+    #preloader {
+        background-color: $dark-primary;
+    }
+
+    body,
+    .card-body {
+        color: $text;
+    }
+
+    a,
+    a:hover,
+    a:focus,
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6 {
+        color: $white;
+    }
+
+    .header-area,
+    .footer-nav-area {
+        background-color: #332858;
+    }
+
+    .card {
+        border-color: $dark-sec;
+        background-color: $dark-sec;
+    }
+
+    .border,
+    .border-start,
+    .border-right,
+    .border-bottom,
+    .border-top,
+    .list-group-item {
+        border-color: rgba(255, 255, 255, 0.1) !important;
+    }
+
+    .user-profile-icon a,
+    .suha-navbar-toggler {
+        border-color: rgba(255, 255, 255, 0.2);
+    }
+
+    .cart-icon-wrap a span {
+        background-color: $primary;
+    }
+
+    .dropdown-menu {
+        background-color: $dark-tertiary;
+
+        .dropdown-item:hover,
+        .dropdown-item:focus {
+            color: $white !important;
+        }
+    }
+
+    .bg-white {
+        background-color: $dark-tertiary !important;
+    }
+
+    .btn-warning,
+    .btn-info {
+        color: $heading;
+
+        &:hover {
+            color: $heading;
+        }
+    }
+
+    .btn-close {
+        filter: invert(1) grayscale(100%) brightness(200%);
+    }
+
+    .form-control::placeholder {
+        color: #fff;
+        opacity: .6;
+    }
+
+    .widget .form-check-label {
+        color: #fff;
+    }
+
+    .search-form .form-control {
+        background-color: #332858;
+        color: #fff;
+
+        &::placeholder {
+            color: #fff;
+            opacity: .5;
+        }
+    }
+
+    .btn-light {
+        background-color: $dark-sec;
+
+        &:hover {
+            background-color: #332858;
+        }
+    }
+
+    .catagory-card {
+
+        &.active,
+        &:hover {
+            background-color: $dark-tertiary;
+
+            span {
+                color: $warning;
+            }
+        }
+    }
+
+    .suha-footer-nav ul li a {
+        color: $white;
+    }
+
+    .flash-sale-card {
+        .product-title {
+            color: $white;
+        }
+
+        .sale-price {
+            color: $white;
+        }
+    }
+
+    .product-card {
+        .product-title {
+            color: $white;
+
+            &:hover {
+                color: $warning;
+            }
+        }
+
+        .sale-price {
+            color: $white;
+        }
+    }
+
+    .horizontal-product-card {
+        .product-thumbnail-side {
+            .product-thumbnail {
+                background-color: $dark-tertiary;
+            }
+
+            .wishlist-btn {
+                color: #ea4c62;
+                background-color: $dark-sec;
+                border-color: $dark-sec;
+            }
+
+            .delete-btn {
+                color: #ea4c62;
+                background-color: $dark-sec;
+                border-color: $dark-sec;
+            }
+        }
+
+        .product-description {
+            .product-title {
+                color: $white;
+            }
+
+            .product-rating {
+                color: $white;
+            }
+
+            .delete-btn {
+                background-color: rgba(255, 255, 255, 0.1);
+            }
+
+            .sale-price {
+                color: $white;
+            }
+        }
+    }
+
+    .featured-product-card {
+        .product-description {
+            .product-title {
+                color: $white;
+
+                &:hover {
+                    color: $warning;
+                }
+            }
+
+            .sale-price {
+                color: $white;
+            }
+        }
+    }
+
+    .page-nav li a {
+        background-color: $dark-tertiary;
+        color: $white;
+
+        &:hover {
+            color: $warning;
+        }
+    }
+
+    .back-button a {
+        color: $white;
+
+        &:hover {
+            color: $warning;
+        }
+    }
+
+    .suha-filter-offcanvas-wrap {
+        background-color: $dark-tertiary;
+    }
+
+    .form-check-input {
+        background-color: $dark-primary;
+        border: 0.063rem solid rgba(0, 0, 0, .25);
+    }
+
+    .form-control {
+        border-color: rgba(255, 255, 255, 0.1);
+        background-color: $dark-sec;
+        color: $white;
+    }
+
+    .product-catagories a {
+        background-color: $dark-tertiary;
+        color: $white;
+    }
+
+    .single-order-status .order-text span {
+        color: $text;
+    }
+
+    .nice-select {
+        background-color: $dark-tertiary;
+        border-color: rgba(255, 255, 255, 0.1);
+
+        .list {
+            background-color: $dark-tertiary;
+
+            .option:hover,
+            .option.focus,
+            .option.selected.focus {
+                background-color: rgba(255, 255, 255, 0.2);
+                color: $white;
+            }
+        }
+    }
+
+    .product-title-meta-data {
+        background-color: $dark-sec !important;
+
+        &::after {
+            background-image: url(img/core-img/curve2.png);
+        }
+    }
+
+    .p-wishlist-share a {
+        color: $danger;
+    }
+
+    .progress {
+        background-color: rgba(255, 255, 255, 0.15);
+    }
+
+    .cart-form .quantity-button-handler {
+        background-color: $dark-sec;
+        border-color: rgba(255, 255, 255, 0.1);
+        color: $white;
+    }
+
+    .product-slide-wrapper .video-btn {
+        background-color: $dark-primary;
+        color: $danger;
+    }
+
+    .product-slides .owl-prev,
+    .product-slides .owl-next {
+        background-color: $dark-primary !important;
+        color: $white;
+    }
+
+    .single-user-review {
+        border-bottom-color: rgba(255, 255, 255, 0.15);
+    }
+
+    .layout-options a {
+        background-color: $dark-tertiary;
+
+        &.active,
+        &:hover {
+            color: $white;
+            background-color: $danger;
+        }
+    }
+
+    .single-order-status.active .order-text h6 {
+        color: $white;
+    }
+
+    .single-order-status .order-status {
+        background-color: $dark-sec;
+    }
+
+    .single-order-status .order-status i {
+        color: rgba(255, 255, 255, 0.21);
+    }
+
+    .single-order-status.active .order-status i {
+        color: $success;
+    }
+
+    .my-order-wrapper .card::after {
+        border-right-color: rgba(255, 255, 255, 0.1);
+    }
+
+    .vendor-tabs {
+        background-color: $dark-tertiary;
+
+        .nav-item.show .nav-link,
+        .nav-link.active {
+            color: $warning;
+            background-color: transparent;
+        }
+    }
+
+    .register-form .form-control {
+        background-color: transparent;
+    }
+
+    .cart-table {
+        table {
+            tbody tr {
+                background-color: transparent;
+                border-bottom-color: rgba(255, 255, 255, 0.1);
+            }
+
+            a {
+                color: $white;
+
+                &:hover {
+                    color: $warning;
+                }
+            }
+        }
+
+        img {
+            border-color: rgba(255, 255, 255, 0.1);
+        }
+    }
+
+    .language-area-wrapper,
+    .shipping-method-choose {
+
+        input[type="radio"]:checked~label,
+        input[type="radio"]:checked~label {
+            color: $white;
+            background-color: rgba(255, 255, 255, 0.103);
+        }
+
+        input[type="radio"]:checked~.check,
+        input[type="radio"]:checked~.check {
+            border-color: $warning;
+        }
+
+        input[type="radio"]:checked~.check::before,
+        input[type="radio"]:checked~.check::before {
+            background: $warning;
+        }
+    }
+
+    .single-payment-method a {
+        background-color: $dark-tertiary;
+
+        &.active h6,
+        &:hover h6 {
+            color: $primary;
+        }
+    }
+
+    .list-group-item {
+        background-color: $dark-sec;
+        color: $white;
+    }
+
+    .pay-credit-card-form .form-control {
+        box-shadow: none !important;
+    }
+
+    .otp-form {
+        input.form-control {
+            background-color: rgba(255, 255, 255, 0.25);
+        }
+
+        .nice-select {
+            background-color: rgba(255, 255, 255, 0.25);
+            color: $white;
+        }
+    }
+
+    .otp-verify-form {
+        .form-control {
+            background-color: rgba(255, 255, 255, 0.25);
+        }
+    }
+
+    .user-info-card {
+        background-color: $primary;
+        border-color: $primary;
+
+        h5 {
+            color: $white;
+        }
+    }
+
+    .user-data-card {
+        .title {
+            color: $white;
+        }
+
+        .password-score {
+            color: $white;
+        }
+    }
+
+    .table> :not(caption)>*>* {
+        background-color: transparent;
+    }
+
+    .blog-card {
+        .post-content {
+            background-color: $dark-tertiary;
+
+            .post-title {
+                color: $white;
+
+                &:hover {
+                    color: $warning;
+                }
+            }
+
+            .post-meta a {
+                color: $text;
+
+                &:hover {
+                    color: $warning;
+                }
+            }
+
+            .bg-shapes {
+
+                .circle1,
+                .circle2,
+                .circle3,
+                .circle4,
+                .circle5 {
+                    border-color: rgba(255, 255, 255, 0.1);
+                }
+            }
+        }
+    }
+
+    .blog-catagory-card {
+        a {
+            i {
+                color: $white;
+            }
+
+            span {
+                color: $text;
+
+                &:hover {
+                    color: $warning;
+                }
+            }
+        }
+    }
+
+    .blog-details-post-thumbnail .post-bookmark {
+        background-color: $dark-sec;
+        color: $white;
+
+        &:hover {
+            background-color: $danger;
+            color: $white;
+        }
+    }
+
+    .agent-message-content {
+        .agent-message-text {
+            p {
+                background-color: rgba(255, 255, 255, 0.1);
+            }
+
+            .writing-mode {
+                background-color: rgba(255, 255, 255, 0.1);
+            }
+        }
+    }
+
+    .type-text-form {
+        .form-control {
+            border: 0 !important;
+            border-radius: 0;
+        }
+
+        .file-upload {
+            border-color: rgba(255, 255, 255, 0.1);
+
+            i {
+                background-color: $dark-tertiary;
+                color: $white;
+            }
+        }
+
+        button[type="submit"] {
+            background-color: transparent;
+            color: $warning;
+        }
+    }
+
+    .notification-area .list-group-item.readed {
+        background-color: $dark-tertiary;
+    }
+
+    .faq-search-form button {
+        color: $warning;
+    }
+
+    .accordian-card .accordian-header button {
+        color: $warning;
+
+        &.collapsed>span {
+            color: $white;
+        }
+    }
+
+    .preview-iframe-wrapper {
+        .preview-hero-area {
+            background-image: none;
+            background-color: $dark-primary;
+
+            &::after {
+                background-image: url(img/core-img/curve2.png);
+            }
+        }
+
+        .preview-content-wrapper {
+            .demo-title {
+                span {
+                    color: $warning;
+                }
+            }
+        }
+
+        .qr-code-wrapper {
+            background-color: $dark-sec;
+        }
+
+        .features-area {
+            background-color: #242644 !important;
+
+            ul li {
+                &.active {
+                    color: $white;
+
+                    &::before {
+                        color: $warning;
+                    }
+                }
+            }
+        }
+    }
+
+    .preview-footer-area {
+        .footer-nav a {
+
+            &:hover {
+                color: $warning;
+            }
+        }
+    }
+
+    .form-floating>.form-control-plaintext~label::after,
+    .form-floating>.form-control:focus~label::after,
+    .form-floating>.form-control:not(:placeholder-shown)~label::after,
+    .form-floating>.form-select~label::after {
+        background-color: $dark;
+    }
+
+    .form-floating>.form-control-plaintext~label,
+    .form-floating>.form-control:focus~label,
+    .form-floating>.form-control:not(:placeholder-shown)~label,
+    .form-floating>.form-select~label {
+        color: $white;
+    }
+
+    .ratings-submit-form textarea.form-control {
+        border-color: rgba(255, 255, 255, 0.1);
+    }
+
+    .single-order-status .order-icon {
+        background-color: rgba(255, 255, 255, 0.1);
+    }
+
+    .single-order-status.active .order-icon {
+        color: #ffffff;
+        background-color: #625AFA;
+    }
+
+    .shipping-method-choose-title-card, .billing-information-title-card {
+        border-bottom-color: rgba(255, 255, 255, 0.1) !important;
+    }
+}
