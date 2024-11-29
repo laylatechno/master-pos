@@ -2,8 +2,6 @@
 
 namespace App\Http\Controllers\Front;
 use App\Http\Controllers\Controller;
-use App\Models\Slider;
-use Illuminate\Http\Request;
 
 class HomeController extends Controller
 {
@@ -23,7 +21,6 @@ class HomeController extends Controller
     {
         $title = "Halaman Home";
         $subtitle = "Menu Home";
-        $slider = Slider::orderBy('position', 'asc')->get();
-        return view('front.home', compact('title','subtitle','slider'));
+        return view('front.home', compact('title','subtitle'));
     }
 }

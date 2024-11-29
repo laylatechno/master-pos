@@ -18,9 +18,31 @@ class Product extends Model
     protected $table = 'products';
     protected $guarded = [];
 
-    public function achievements()
+     // Relasi dengan Category
+     public function category()
+     {
+         return $this->belongsTo(Category::class);
+     }
+ 
+     // Relasi dengan Unit
+     public function unit()
+     {
+         return $this->belongsTo(Unit::class);
+     }
+
+    public function productPrices()
     {
-        return $this->belongsToMany(Achievement::class, 'achievement_products');
+        return $this->hasMany(ProductPrice::class);
     }
+
+    public function product()
+{
+    return $this->belongsTo(Product::class);
+}
+
+    
+
+    
+    
 
 }

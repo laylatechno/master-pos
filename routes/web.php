@@ -1,50 +1,73 @@
 <?php
-use App\Http\Controllers\AchievementProductsController;
-use App\Http\Controllers\AchievementStimuliController;
-use App\Http\Controllers\AchievementsController;
-use App\Http\Controllers\ProductsController;
-use App\Http\Controllers\StimuliController;
-use App\Http\Controllers\ParentsController;
- 
 
-use App\Http\Controllers\BlogsController;
-use App\Http\Controllers\ChildrensController;
-use App\Http\Controllers\DevelopmentCategoriesController;
-use App\Http\Controllers\Front\HomeController as FrontHomeController;
+use App\Http\Controllers\PurchaseOrdersController;
+use App\Http\Controllers\CashController;
+use App\Http\Controllers\PurchaseController;
+use App\Http\Controllers\CustomerCategoryController;
+use App\Http\Controllers\ShiftsController;
+use App\Http\Controllers\OrderItemsController;
+use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\HomeController;
-use App\Http\Controllers\KategoriBlogController;
 use App\Http\Controllers\LogHistoriController;
 use App\Http\Controllers\MenuGroupsController;
 use App\Http\Controllers\MenuItemsController;
+use App\Http\Controllers\OrderController;
 use App\Http\Controllers\PermissionsController;
+use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ProfilController;
 use App\Http\Controllers\ResourceController;
 use App\Http\Controllers\RolesController;
 use App\Http\Controllers\RouteController;
-use App\Http\Controllers\SlidersController;
+use App\Http\Controllers\SupplierController;
+use App\Http\Controllers\UnitController;
 use App\Http\Controllers\UsersController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
-Route::resource('/', FrontHomeController::class);
+
 
 Auth::routes();
+
+Route::get('/', function () {
+    return view('welcome');
+});
 
 Route::get('/home', [HomeController::class, 'index'])->name('home');
 
 Route::group(['middleware' => ['auth']], function () {
-    Route::resource('sliders', SlidersController::class);
-    Route::resource('achievement_products', AchievementProductsController::class);
-    Route::resource('achievement_stimuli', AchievementStimuliController::class);
-    Route::resource('achievements', AchievementsController::class);
-    Route::resource('products', ProductsController::class);
-    Route::resource('stimuli', StimuliController::class);
-    Route::resource('development_categories', DevelopmentCategoriesController::class);
-    Route::resource('children', ChildrensController::class);
-    Route::resource('parents', ParentsController::class);
+
+    Route::resource('cash', CashController::class);
 
 
- 
+    Route::resource('purchases', PurchaseController::class);
+    Route::get('/purchases/{id}/print-invoice', [PurchaseController::class, 'printInvoice'])->name('purchases.print_invoice');
+    Route::put('purchases/{purchase}', [PurchaseController::class, 'update'])->name('purchases.update');
+
+
+    Route::resource('suppliers', SupplierController::class);
+
+
+
+    Route::resource('customers', CustomerController::class);
+
+
+
+    Route::resource('shifts', ShiftsController::class);
+
+
+    Route::resource('orders', OrderController::class);
+    Route::get('/orders/{id}/print-invoice', [OrderController::class, 'printInvoice'])->name('orders.print_invoice');
+    Route::put('orders/{order}', [OrderController::class, 'update'])->name('orders.update');
+
+    Route::resource('units', UnitController::class);
+
+    Route::resource('products', ProductController::class);
+    Route::get('/get-product-price', [ProductController::class, 'getProductPrice']);
+
+
+    Route::resource('categories', CategoryController::class);
+
 
     Route::resource('routes', RouteController::class);
     Route::get('/generate-routes', [RouteController::class, 'generateRoutes'])->name('routes.generate');
@@ -60,9 +83,4 @@ Route::group(['middleware' => ['auth']], function () {
     Route::post('menu-groups/update-positions', [MenuGroupsController::class, 'updatePositions'])->name('menu_groups.update_positions');
     Route::get('/create-resource', [ResourceController::class, 'createForm'])->name('resource.create');
     Route::post('/create-resource', [ResourceController::class, 'createResource'])->name('resource.store');
-
-
-    Route::resource('blogs', BlogsController::class);
-    Route::resource('kategori_blog', KategoriBlogController::class);
-
 });

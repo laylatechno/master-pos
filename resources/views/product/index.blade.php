@@ -43,6 +43,7 @@
                                 </div>
                             </div>
 
+                            
                             @if(session('success'))
                             <div class="alert alert-success">{{ session('success') }}</div>
                             @endif
@@ -52,25 +53,31 @@
                             </div>
                             @endif
 
-
-                            <table id="zero_config" class="table border table-striped table-bordered text-nowrap">
+                            
+                            <table id="scroll_hor"
+                                class="table border table-striped table-bordered display nowrap"
+                                style="width: 100%">
                                 <thead>
                                     <tr>
                                         <th width="5px">No</th>
                                         <th>Nama</th>
                                         <th>Deskripsi</th>
-                                        <th>Harga</th>
+                                        <th>Harga Beli</th>
+                                        <th>Harga Jual</th>
+                                        <th>Stok</th>
                                         <th>Gambar</th>
                                         <th width="280px">Action</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @foreach ($data_product as $p)
+                                    @foreach ($data_products as $p)
                                     <tr>
                                         <td>{{ $loop->iteration }}</td>
                                         <td>{{ $p->name }}</td>
                                         <td>{{ $p->description }}</td>
-                                        <td>Rp {{ number_format($p->price, 0, ',', '.') }}</td>
+                                        <td>Rp {{ number_format($p->purchase_price, 0, ',', '.') }}</td>
+                                        <td>Rp {{ number_format($p->cost_price, 0, ',', '.') }}</td>
+                                        <td>{{ $p->stock }}</td>
                                         <td>
                                             <a href="/upload/products/{{ $p->image }}" target="_blank">
                                                 <img style="max-width:100px; max-height:100px"

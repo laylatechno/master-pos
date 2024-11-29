@@ -2,8 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Slider;
-use Illuminate\Http\Request;
 
 class HomeController extends Controller
 {
@@ -26,7 +24,6 @@ class HomeController extends Controller
     {
         $title = "Halaman Dashboard";
         $subtitle = "Menu Dashboard";
-        $slider = Slider::orderBy('position', 'asc')->get();
-        return view('home', compact('title','subtitle','slider'));
+        return view('home', compact('title','subtitle'));
     }
 }

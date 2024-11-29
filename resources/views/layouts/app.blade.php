@@ -15,7 +15,6 @@
 
 
     <!-- Core Css -->
-    <!-- <link rel="stylesheet" href="https://bootstrapdemos.adminmart.com/modernize/dist/assets/css/styles.css" /> -->
     <link id="themeColors" rel="stylesheet" href="{{ asset('template/back') }}/dist/css/styles.css" />
 
     <title>{{ $title }}</title>
@@ -128,7 +127,7 @@
 
 
 
- 
+
 
 
 
@@ -235,50 +234,54 @@
                                     <!-- start notification Dropdown -->
                                     <!-- ------------------------------- -->
                                     <li class="nav-item nav-icon-hover-bg rounded-circle dropdown">
-                                        <a class="nav-link position-relative" href="javascript:void(0)" id="drop2"
-                                            aria-expanded="false">
+                                        <a class="nav-link position-relative" href="javascript:void(0)" id="drop2" aria-expanded="false">
                                             <i class="ti ti-bell-ringing"></i>
-                                            <div class="notification bg-primary rounded-circle"></div>
+                                            @if($lowStockProducts->count() > 0)
+                                            <div class="notification bg-danger rounded-circle"></div>
+                                            @endif
                                         </a>
-                                        <div class="dropdown-menu content-dd dropdown-menu-end dropdown-menu-animate-up"
-                                            aria-labelledby="drop2">
+                                        <div class="dropdown-menu content-dd dropdown-menu-end dropdown-menu-animate-up" aria-labelledby="drop2">
                                             <div class="d-flex align-items-center justify-content-between py-3 px-7">
                                                 <h5 class="mb-0 fs-5 fw-semibold">Notifikasi</h5>
-                                                <span class="badge text-bg-primary rounded-4 px-3 py-1 lh-sm">5
-                                                    new</span>
+                                                <span class="badge text-bg-primary rounded-4 px-3 py-1 lh-sm">
+                                                    {{ $lowStockProducts->count() }} baru
+                                                </span>
                                             </div>
                                             <div class="message-body" data-simplebar>
-                                                <a href="javascript:void(0)"
-                                                    class="py-6 px-7 d-flex align-items-center dropdown-item">
+                                                @if($lowStockProducts->count() > 0)
+                                                @foreach($lowStockProducts as $product)
+                                                <a href="javascript:void(0)" class="py-6 px-7 d-flex align-items-center dropdown-item">
                                                     <span class="me-3">
-                                                        <img src="https://bootstrapdemos.adminmart.com/modernize/dist/assets/images/profile/user-2.jpg" alt="user"
-                                                            class="rounded-circle" width="48" height="48" />
+                                                        <img src="/upload/products/{{ $product->image }}"
+                                                            alt="product"
+                                                            class="rounded-circle"
+                                                            width="48"
+                                                            height="48" />
                                                     </span>
                                                     <div class="w-100">
-                                                        <h6 class="mb-1 fw-semibold lh-base">Roman Joined the Team!</h6>
-                                                        <span class="fs-2 d-block text-body-secondary">Congratulate
-                                                            him</span>
+                                                        <h6 class="mb-1 fw-semibold lh-base">{{ $product->name }}</h6>
+                                                        <span class="fs-2 d-block text-body-secondary">
+                                                            Stok: {{ $product->stock }} (Reminder: {{ $product->reminder }})
+                                                        </span>
                                                     </div>
                                                 </a>
-                                                <a href="javascript:void(0)"
-                                                    class="py-6 px-7 d-flex align-items-center dropdown-item">
-                                                    <span class="me-3">
-                                                        <img src="https://bootstrapdemos.adminmart.com/modernize/dist/assets/images/profile/user-3.jpg" alt="user"
-                                                            class="rounded-circle" width="48" height="48" />
-                                                    </span>
-                                                    <div class="w-100">
-                                                        <h6 class="mb-1 fw-semibold lh-base">New message</h6>
-                                                        <span class="fs-2 d-block text-body-secondary">Salma sent you
-                                                            new message</span>
-                                                    </div>
-                                                </a>
-
+                                                @endforeach
+                                                @else
+                                                <div class="py-6 px-7 text-center">
+                                                    <span class="text-body-secondary">Tidak ada notifikasi</span>
+                                                </div>
+                                                @endif
                                             </div>
+                                            @if($lowStockProducts->count() > 0)
                                             <div class="py-6 px-7 mb-1">
                                                 <button class="btn btn-outline-primary w-100">Lihat Semua Notifikasi</button>
                                             </div>
+                                            @endif
                                         </div>
                                     </li>
+
+
+
 
 
                                     <!-- ------------------------------- -->
@@ -295,6 +298,7 @@
                                                 </div>
                                             </div>
                                         </a>
+                                        
                                         <div class="dropdown-menu content-dd dropdown-menu-end dropdown-menu-animate-up"
                                             aria-labelledby="drop1">
                                             <div class="profile-dropdown position-relative" data-simplebar>
@@ -602,13 +606,10 @@
     <script src="{{ asset('template/back') }}/dist/js/theme/app.init.js"></script>
     <script src="{{ asset('template/back') }}/dist/js/theme/theme.js"></script>
     <script src="{{ asset('template/back') }}/dist/js/theme/app.min.js"></script>
-    <!-- <script src="{{ asset('template/back') }}/dist/js/theme/sidebarmenu.js"></script> -->
 
     <!-- solar icons -->
     <script src="https://cdn.jsdelivr.net/npm/iconify-icon@1.0.8/dist/iconify-icon.min.js"></script>
     <script src="https://bootstrapdemos.adminmart.com/modernize/dist/assets/libs/owl.carousel/dist/owl.carousel.min.js"></script>
-    <!-- <script src="https://bootstrapdemos.adminmart.com/modernize/dist/assets/libs/apexcharts/dist/apexcharts.min.js"></script> -->
-    <!-- <script src="https://bootstrapdemos.adminmart.com/modernize/dist/assets/js/dashboards/dashboard.js"></script> -->
 
     <script>
         $('.sidebar-link.has-arrow').on('click', function() {
@@ -617,8 +618,7 @@
             $(this).attr('aria-expanded', $submenu.hasClass('show'));
         });
     </script>
-    <!-- <script src="{{ asset('template/back') }}/dist/libs/datatables.net/js/jquery.dataTables.min.js"></script>
-    <script src="{{ asset('template/back') }}/dist/js/datatable/datatable-basic.init.js"></script> -->
+
     @stack('script')
 </body>
 
