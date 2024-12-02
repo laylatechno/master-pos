@@ -74,7 +74,7 @@
                                     <tr>
                                         <td>{{ $loop->iteration }}</td>
                                         <td>{{ $p->name }}</td>
-                                        <td>{{ $p->description }}</td>
+                                        <td>{{ $p->description ?: 'No Data' }}</td>
                                         <td>Rp {{ number_format($p->purchase_price, 0, ',', '.') }}</td>
                                         <td>Rp {{ number_format($p->cost_price, 0, ',', '.') }}</td>
                                         <td>{{ $p->stock }}</td>

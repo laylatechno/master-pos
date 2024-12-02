@@ -51,6 +51,7 @@
                                 <div class="row">
                                     <div class="form-group mb-3">
                                         <label for="name">Nama Supplier</label>
+                                        <span class="text-danger">*</span>  
                                         <input type="text" name="name" class="form-control" id="name" value="{{ $data_suppliers->name }}" required>
                                     </div>
                                     <div class="form-group mb-3">

@@ -45,6 +45,8 @@
                                 <div class="row">
                                     <div class="form-group mb-3">
                                         <label for="name">Nama Satuan</label>
+                                          <span class="text-danger">*</span>  
+
                                         <input type="text" name="name" class="form-control" id="name" required>
                                     </div>
                                     <div class="col-xs-12 col-sm-12 col-md-12 mt-3">

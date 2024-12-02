@@ -67,7 +67,8 @@
                                         <td>{{ $p->name }}</td>
                                         <td>{{ $p->email }}</td>
                                         <td>{{ $p->phone }}</td>
-                                        <td>{{ substr($p->address, 0, 10) }}</td>
+                                        <td>{{ $p->address ? substr($p->address, 0, 10) : 'No Data' }}</td>
+
 
                                         <td>
                                             <a class="btn btn-warning btn-sm" href="{{ route('suppliers.show', $p->id) }}"><i class="fa fa-eye"></i> Show</a>

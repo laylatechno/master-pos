@@ -49,6 +49,7 @@
 
                                 <div class="form-group mb-3">
                                     <label for="name">Nama Satuan</label>
+                                    <span class="text-danger">*</span>  
                                     <input type="text" name="name" class="form-control" id="name" value="{{ $data_units->name }}" required>
                                 </div>
 

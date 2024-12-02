@@ -63,7 +63,8 @@
                                     <tr>
                                         <td>{{ $loop->iteration }}</td>
                                         <td>{{ $p->name }}</td>
-                                        <td>{{ $p->description }}</td>
+                                        <td>{{ $p->description ?: 'No Data' }}</td>
+
                                         <td>
                                             <a class="btn btn-warning btn-sm" href="{{ route('categories.show', $p->id) }}"><i class="fa fa-eye"></i> Show</a>
                                             @can('category-edit')

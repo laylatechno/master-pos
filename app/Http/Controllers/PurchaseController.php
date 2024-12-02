@@ -69,21 +69,21 @@ class PurchaseController extends Controller
     {
         $title = "Halaman Tambah Pembelian";
         $subtitle = "Menu Tambah Pembelian";
-    
+
         // Mengambil data yang diperlukan
         $data_users = User::all();
         $data_products = Product::all();
         $data_suppliers = Supplier::all();
         $data_purchases = Purchase::all();
         $data_cashes = Cash::all();
-    
+
         // Mendapatkan kode pembelian terbaru dari database
         $latestPurchase = Purchase::latest()->first();
         $no_purchase = '';
-    
+
         // Mengambil alias dari tabel profil
         $alias = Profil::first()->alias ?? 'LTPOS';  // Default 'LTPOS' jika alias kosong
-    
+
         // Jika belum ada pembelian sebelumnya
         if (!$latestPurchase) {
             $no_purchase = $alias . '-' . date('Ymd') . '-000001-PCS';
@@ -91,18 +91,18 @@ class PurchaseController extends Controller
             // Memecah kode pembelian untuk mendapatkan nomor urut
             $parts = explode('-', $latestPurchase->no_purchase);
             $nomor_urut = intval($parts[2]) + 1;
-    
+
             // Format ulang nomor urut agar memiliki panjang 6 digit
             $nomor_urut_format = str_pad($nomor_urut, 6, '0', STR_PAD_LEFT);
-    
+
             // Menggabungkan kode pembelian baru
             $no_purchase = $alias . '-' . date('Ymd') . '-' . $nomor_urut_format . '-PCS';
         }
-    
+
         // Menampilkan view dengan data yang diperlukan
         return view('purchase.create', compact('data_cashes', 'data_purchases', 'data_products', 'data_users', 'data_suppliers', 'title', 'subtitle', 'no_purchase'));
     }
-    
+
 
 
     /**
@@ -287,35 +287,164 @@ class PurchaseController extends Controller
         return view('purchase.edit', compact('purchase', 'title', 'subtitle', 'data_suppliers', 'data_products', 'data_cashes'));
     }
 
-
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, $id)
+    // public function update(Request $request, $id)
+    // {
+    //     // Validasi input dari form
+    //     $request->validate([
+    //         'purchase_date' => 'required|date',
+    //         'image' => 'mimes:jpg,jpeg,png,gif|max:4048',
+    //         'items.*.product_id' => 'required|exists:products,id',
+    //         'items.*.purchase_price' => 'required|regex:/^\d+([.,]\d+)*$/',
+    //         'items.*.quantity' => 'required|integer|min:1',
+    //     ], [
+    //         'items.*.product_id.required' => 'Produk harus dipilih.',
+    //         'items.*.product_id.exists' => 'Produk yang dipilih tidak valid.',
+    //         'items.*.purchase_price.required' => 'Harga pembelian harus diisi.',
+    //         'items.*.purchase_price.regex' => 'Format harga pembelian tidak valid.',
+    //         'items.*.quantity.required' => 'Jumlah harus diisi.',
+    //         'items.*.quantity.integer' => 'Jumlah harus berupa angka.',
+    //         'items.*.quantity.min' => 'Jumlah minimal adalah 1.',
+    //     ]);
+
+
+
+
+    //     // Temukan data pembelian berdasarkan ID
+    //     $purchase = Purchase::findOrFail($id);
+
+    //     // Simpan status dan data awal sebelum update
+    //     $oldStatus = $purchase->status;
+    //     $oldData = $purchase->toArray();
+
+    //     // Menangani gambar (jika ada)
+    //     if ($image = $request->file('image')) {
+    //         $destinationPath = 'upload/purchases/';
+    //         $originalFileName = $image->getClientOriginalName();
+    //         $imageMimeType = $image->getMimeType();
+
+    //         // Hapus gambar lama jika ada
+    //         if ($purchase->image && file_exists(public_path($destinationPath . $purchase->image))) {
+    //             @unlink(public_path($destinationPath . $purchase->image));
+    //         }
+
+    //         // Proses upload gambar baru
+    //         $imageName = date('YmdHis') . '_' . str_replace(' ', '_', $originalFileName);
+    //         $image->move($destinationPath, $imageName);
+
+    //         $sourceImagePath = public_path($destinationPath . $imageName);
+    //         $webpImagePath = $destinationPath . pathinfo($imageName, PATHINFO_FILENAME) . '.webp';
+
+    //         // Konversi gambar ke WebP
+    //         switch ($imageMimeType) {
+    //             case 'image/jpeg':
+    //                 $sourceImage = @imagecreatefromjpeg($sourceImagePath);
+    //                 break;
+    //             case 'image/png':
+    //                 $sourceImage = @imagecreatefrompng($sourceImagePath);
+    //                 break;
+    //             default:
+    //                 throw new \Exception('Tipe MIME tidak didukung.');
+    //         }
+
+    //         if ($sourceImage !== false) {
+    //             imagewebp($sourceImage, $webpImagePath);
+    //             imagedestroy($sourceImage);
+    //             @unlink($sourceImagePath); // Menghapus file gambar asli
+    //             $purchase->image = pathinfo($imageName, PATHINFO_FILENAME) . '.webp';
+    //         } else {
+    //             throw new \Exception('Gagal membaca gambar asli.');
+    //         }
+    //     }
+
+    //     // Update data pembelian
+    //     $purchase->description = $request->description;
+    //     $purchase->type_payment = $request->type_payment;
+    //     $purchase->purchase_date = $request->purchase_date;
+    //     $purchase->status = $request->status;
+    //     $purchase->cash_id = $request->cash_id;
+    //     $purchase->supplier_id = $request->supplier_id;
+    //     $purchase->no_purchase = $request->no_purchase;
+    //     $purchase->user_id = Auth::id();
+    //     $purchase->total_cost = str_replace(['.', ','], '', $request->total_cost);
+    //     $purchase->save();
+
+    //     // Mendapatkan ID dari purchase yang baru saja disimpan
+    //     $purchaseId = $purchase->id;
+
+    //     // Update atau simpan detail purchase ke dalam database
+    //     $items = $request->items;
+    //     foreach ($items as $itemId => $itemData) {
+    //         $hargaBeliWithoutSeparator = str_replace(['.', ','], '', $itemData['purchase_price']);
+    //         $purchaseItem = PurchaseItem::findOrNew($itemId); // Update jika item ada, buat baru jika tidak ada
+    //         $purchaseItem->purchase_id = $purchaseId;
+    //         $purchaseItem->product_id = $itemData['product_id'];
+    //         $purchaseItem->purchase_price = $hargaBeliWithoutSeparator;
+    //         $purchaseItem->quantity = $itemData['quantity'];
+    //         $purchaseItem->total_price = $itemData['quantity'] * $hargaBeliWithoutSeparator;
+    //         $purchaseItem->save();
+    //     }
+
+    //     // Jika status berubah menjadi "Lunas", tambahkan stok dan kurangi saldo kas
+    //     if ($oldStatus !== 'Lunas' && $purchase->status === 'Lunas') {
+    //         foreach ($items as $itemId => $itemData) {
+    //             $purchaseItem = PurchaseItem::findOrFail($itemId);
+    //             $product = Product::find($purchaseItem->product_id);
+
+    //             if ($product) {
+    //                 $product->stock += $purchaseItem->quantity;
+    //                 $product->save();
+    //             }
+    //         }
+
+    //         // Pemotongan saldo kas
+    //         $cash = Cash::find($request->cash_id);
+    //         if ($cash) {
+    //             if ($cash->amount >= $purchase->total_cost) {
+    //                 $cash->amount -= $purchase->total_cost;  // Mengurangi saldo kas
+    //                 $cash->save();  // Simpan perubahan kas
+    //             } else {
+    //                 return response()->json(['error' => 'Saldo cash tidak mencukupi'], 400);
+    //             }
+    //         } else {
+    //             return response()->json(['error' => 'Kas tidak ditemukan'], 404);
+    //         }
+    //     }
+
+    //     // Simpan log histori
+    //     $loggedInUserId = Auth::id();
+    //     $this->simpanLogHistori('Update', 'purchases', $purchase->id, $loggedInUserId, json_encode($oldData), json_encode($purchase->toArray()));
+
+    //     // Return response JSON
+    //     return response()->json([
+    //         'status' => 'success',
+    //         'message' => 'Pembelian berhasil diperbarui!',
+    //     ]);
+    // }
+
+    public function update(Request $request, string $id)
     {
-        // Validasi input dari form
+        // Validasi data
         $request->validate([
             'purchase_date' => 'required|date',
-            'image' => 'mimes:jpg,jpeg,png,gif|max:4048',
-            'items.*.product_id' => 'required|exists:products,id',
-            'items.*.purchase_price' => 'required|regex:/^\d+([.,]\d+)*$/',
-            'items.*.quantity' => 'required|integer|min:1',
-        ], [
-            'image.mimes' => 'Bukti yang dimasukkan hanya diperbolehkan berekstensi JPG, JPEG, PNG, dan GIF',
-            'image.max' => 'Ukuran image tidak boleh lebih dari 4 MB',
-            'items.*.product_id.required' => 'Produk harus dipilih.',
-            'items.*.purchase_price.required' => 'Harga pembelian harus diisi.',
-            'items.*.quantity.required' => 'Jumlah harus diisi.',
+            'product_id' => 'required|array',
+            'quantity' => 'required|array',
+            'purchase_price' => 'required|array',
+            'total_cost' => 'required|numeric',
+            'status' => 'required', // Pastikan status juga divalidasi
+            'description' => 'nullable|string',
+            'type_payment' => 'nullable|string',
+            'no_purchase' => 'nullable|string',
+            'cash_id' => 'nullable|exists:cash,id', // Pastikan cash_id valid
+            'image' => 'nullable|image|mimes:jpeg,png,jpg|max:2048', // Validasi untuk gambar
         ]);
     
-        // Temukan data pembelian berdasarkan ID
+        // Cari pembelian
         $purchase = Purchase::findOrFail($id);
     
-        // Simpan status dan data awal sebelum update
-        $oldStatus = $purchase->status;
-        $oldData = $purchase->toArray();
-    
-        // Menangani gambar (jika ada)
+        // Proses upload gambar jika ada
         if ($image = $request->file('image')) {
             $destinationPath = 'upload/purchases/';
             $originalFileName = $image->getClientOriginalName();
@@ -328,8 +457,9 @@ class PurchaseController extends Controller
     
             // Proses upload gambar baru
             $imageName = date('YmdHis') . '_' . str_replace(' ', '_', $originalFileName);
-            $image->move($destinationPath, $imageName);
+            $image->move(public_path($destinationPath), $imageName);
     
+            // Path gambar yang telah diupload
             $sourceImagePath = public_path($destinationPath . $imageName);
             $webpImagePath = $destinationPath . pathinfo($imageName, PATHINFO_FILENAME) . '.webp';
     
@@ -345,81 +475,116 @@ class PurchaseController extends Controller
                     throw new \Exception('Tipe MIME tidak didukung.');
             }
     
+            // Jika gambar berhasil dibaca, konversi ke WebP
             if ($sourceImage !== false) {
-                imagewebp($sourceImage, $webpImagePath);
+                imagewebp($sourceImage, public_path($webpImagePath));
                 imagedestroy($sourceImage);
                 @unlink($sourceImagePath); // Menghapus file gambar asli
-                $purchase->image = pathinfo($imageName, PATHINFO_FILENAME) . '.webp';
+                $purchase->image = pathinfo($imageName, PATHINFO_FILENAME) . '.webp'; // Update nama gambar di database
             } else {
                 throw new \Exception('Gagal membaca gambar asli.');
             }
         }
     
-        // Update data pembelian
-        $purchase->description = $request->description;
-        $purchase->type_payment = $request->type_payment;
-        $purchase->purchase_date = $request->purchase_date;
-        $purchase->status = $request->status;
-        $purchase->cash_id = $request->cash_id;
-        $purchase->supplier_id = $request->supplier_id;
-        $purchase->no_purchase = $request->no_purchase;
-        $purchase->user_id = Auth::id();
-        $purchase->total_cost = str_replace(['.', ','], '', $request->total_cost);
-        $purchase->save();
+        // Ambil status untuk pengecekan
+        $status = $request->status;
     
-        // Mendapatkan ID dari purchase yang baru saja disimpan
-        $purchaseId = $purchase->id;
+        // Jika status "Lunas", lakukan pengurangan saldo kas dan penambahan stok produk
+        if ($status === 'Lunas') {
+            $cashId = $request->cash_id;
+            $cashAmount = Cash::find($cashId)->amount; // Ambil jumlah saldo kas yang dipilih
     
-        // Update atau simpan detail purchase ke dalam database
-        $items = $request->items;
-        foreach ($items as $itemId => $itemData) {
-            $hargaBeliWithoutSeparator = str_replace(['.', ','], '', $itemData['purchase_price']);
-            $purchaseItem = PurchaseItem::findOrNew($itemId); // Update jika item ada, buat baru jika tidak ada
-            $purchaseItem->purchase_id = $purchaseId;
-            $purchaseItem->product_id = $itemData['product_id'];
-            $purchaseItem->purchase_price = $hargaBeliWithoutSeparator;
-            $purchaseItem->quantity = $itemData['quantity'];
-            $purchaseItem->total_price = $itemData['quantity'] * $hargaBeliWithoutSeparator;
-            $purchaseItem->save();
-        }
+            // Validasi jika saldo kas tidak mencukupi
+            if ($purchase->total_cost > $cashAmount) {
+                return response()->json(['success' => false, 'message' => 'Saldo Kas tidak mencukupi.']);
+            }
     
-        // Jika status berubah menjadi "Lunas", tambahkan stok dan kurangi saldo kas
-        if ($oldStatus !== 'Lunas' && $purchase->status === 'Lunas') {
-            foreach ($items as $itemId => $itemData) {
-                $purchaseItem = PurchaseItem::findOrFail($itemId);
-                $product = Product::find($purchaseItem->product_id);
+            // Kurangi saldo kas sesuai dengan total biaya pembelian
+            $newCashAmount = $cashAmount - $purchase->total_cost;
+            Cash::find($cashId)->update(['amount' => $newCashAmount]); // Update saldo kas
     
+            // Proses penambahan stok produk
+            foreach ($request->product_id as $key => $productId) {
+                $quantity = $request->quantity[$key];
+                $product = Product::find($productId);
+                
                 if ($product) {
-                    $product->stock += $purchaseItem->quantity;
-                    $product->save();
+                    // Tambah stok produk
+                    $product->increment('stock', $quantity);
                 }
-            }
-    
-            // Pemotongan saldo kas
-            $cash = Cash::find($request->cash_id);
-            if ($cash) {
-                if ($cash->amount >= $purchase->total_cost) {
-                    $cash->amount -= $purchase->total_cost;  // Mengurangi saldo kas
-                    $cash->save();  // Simpan perubahan kas
-                } else {
-                    return response()->json(['error' => 'Saldo cash tidak mencukupi'], 400);
-                }
-            } else {
-                return response()->json(['error' => 'Kas tidak ditemukan'], 404);
             }
         }
     
-        // Simpan log histori
-        $loggedInUserId = Auth::id();
-        $this->simpanLogHistori('Update', 'purchases', $purchase->id, $loggedInUserId, json_encode($oldData), json_encode($purchase->toArray()));
-    
-        // Return response JSON
-        return response()->json([
-            'status' => 'success',
-            'message' => 'Pembelian berhasil diperbarui!',
+        // Update data pembelian
+        $purchase->update([
+            'description' => $request->description,
+            'type_payment' => $request->type_payment,
+            'purchase_date' => $request->purchase_date,
+            'status' => $request->status,
+            'cash_id' => $request->cash_id,
+            'supplier_id' => $request->supplier_id,
+            'no_purchase' => $request->no_purchase,
+            'user_id' => Auth::id(),
+            'total_cost' => str_replace(['.', ','], '', $request->total_cost),
         ]);
+    
+        // Ambil semua `product_id` dari request
+        $newProductIds = $request->product_id;
+    
+        // Ambil semua item lama dari database
+        $existingItems = $purchase->purchaseItems()->get();
+    
+        // Inisialisasi untuk menghitung total biaya pembelian
+        $total_cost = 0;
+    
+        // Proses update dan tambah item
+        foreach ($newProductIds as $key => $productId) {
+            $quantity = $request->quantity[$key];
+            $purchase_price = str_replace(['.', ','], '', $request->purchase_price[$key]);
+    
+            // Hitung total price untuk setiap item pembelian
+            $total_price = $quantity * $purchase_price;
+    
+            // Periksa apakah item ini sudah ada di database
+            $existingItem = $existingItems->firstWhere('product_id', $productId);
+    
+            if ($existingItem) {
+                // Jika item sudah ada, perbarui
+                $existingItem->update([
+                    'quantity' => $quantity,
+                    'purchase_price' => $purchase_price,
+                    'total_price' => $total_price,
+                ]);
+            } else {
+                // Jika item belum ada, tambahkan baru
+                PurchaseItem::create([
+                    'purchase_id' => $purchase->id,
+                    'product_id' => $productId,
+                    'quantity' => $quantity,
+                    'purchase_price' => $purchase_price,
+                    'total_price' => $total_price,
+                ]);
+            }
+    
+            // Tambahkan total_price ke total cost pembelian
+            $total_cost += $total_price;
+        }
+    
+        // Hapus item yang tidak ada di request tetapi ada di database
+        $existingItems->whereNotIn('product_id', $newProductIds)->each(function ($item) {
+            $item->delete();
+        });
+    
+        // Update total cost pembelian setelah semua item diproses
+        $purchase->update(['total_cost' => $total_cost]);
+    
+        return response()->json(['success' => true, 'message' => 'Pembelian berhasil diperbarui.']);
     }
     
+    
+
+
+
 
 
     /**

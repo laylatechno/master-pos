@@ -67,8 +67,8 @@
                 <!-- ---------------------------------- -->
                 <div class="brand-logo d-flex align-items-center justify-content-between">
                     <a href="/home" class="text-nowrap logo-img">
-                        <img src="https://bootstrapdemos.adminmart.com/modernize/dist/assets/images/logos/dark-logo.svg" class="dark-logo" alt="Logo-Dark" />
-                        <img src="https://bootstrapdemos.adminmart.com/modernize/dist/assets/images/logos/light-logo.svg" class="light-logo" alt="Logo-light" />
+                        <img src="{{ asset('/upload/profil/' . $profil->logo) }}" class="dark-logo" alt="Logo-Dark" />
+                        <img src="{{ asset('/upload/profil/' . $profil->logo) }}" class="light-logo" alt="Logo-light" />
                     </a>
                     <a href="javascript:void(0)"
                         class="sidebartoggler ms-auto text-decoration-none fs-5 d-block d-xl-none">
@@ -274,7 +274,9 @@
                                             </div>
                                             @if($lowStockProducts->count() > 0)
                                             <div class="py-6 px-7 mb-1">
-                                                <button class="btn btn-outline-primary w-100">Lihat Semua Notifikasi</button>
+                                                <a href="">
+                                                    <button class="btn btn-outline-primary w-100">Segera perbaharui stock produk anda</button>
+                                                </a>
                                             </div>
                                             @endif
                                         </div>

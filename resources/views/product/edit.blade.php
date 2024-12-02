@@ -64,10 +64,12 @@
                                 <div class="tab-pane fade show active" id="general" role="tabpanel" aria-labelledby="general-tab">
                                     <div class="form-group mb-3">
                                         <label for="name">Nama Produk</label>
+                                        <span class="text-danger">*</span>  
                                         <input type="text" name="name" class="form-control" id="name" value="{{ old('name', $data_product->name) }}" required>
                                     </div>
                                     <div class="form-group mb-3">
                                         <label for="category_id">Kategori Produk</label>
+                                        <span class="text-danger">*</span>  
                                         <select id="category_id" name="category_id" class="form-control" required>
                                             <option value="" disabled selected>--Pilih Kategori Produk--</option>
                                             @foreach ($data_categories as $category)
@@ -77,6 +79,7 @@
                                     </div>
                                     <div class="form-group mb-3">
                                         <label for="unit_id">Satuan</label>
+                                        <span class="text-danger">*</span>  
                                         <select id="unit_id" name="unit_id" class="form-control" required>
                                             <option value="" disabled selected>--Pilih Satuan--</option>
                                             @foreach ($data_units as $unit)
@@ -87,10 +90,12 @@
                                     <div class="row">
                                         <div class="form-group col-6 mb-3">
                                             <label for="purchase_price">Harga Beli</label>
+                                            <span class="text-danger">*</span>  
                                             <input type="text" name="purchase_price" class="form-control" id="purchase_price" value="{{ old('purchase_price', $data_product->purchase_price) }}" placeholder="Masukkan Harga" oninput="formatPrice(this)">
                                         </div>
                                         <div class="form-group col-6 mb-3">
                                             <label for="cost_price">Harga Jual</label>
+                                            <span class="text-danger">*</span>  
                                             <input type="text" name="cost_price" class="form-control" id="cost_price" value="{{ old('cost_price', $data_product->cost_price) }}" placeholder="Masukkan Harga Jual" oninput="formatPrice(this)">
                                         </div>
                                     </div>
@@ -108,7 +113,7 @@
 
                                     <div class="form-group mb-3">
                                         <label for="description">Deskripsi</label>
-                                        <textarea class="form-control" name="description" id="description" required>{{ old('description', $data_product->description) }}</textarea>
+                                        <textarea class="form-control" name="description" id="description">{{ old('description', $data_product->description) }}</textarea>
                                     </div>
                                     <div class="form-group mb-3">
                                         <label for="image">Gambar</label>
@@ -176,7 +181,7 @@
                                                 <div class="row">
                                                     <div class="col-md-5">
                                                         <label for="customer_category_id">Kategori Konsumen</label>
-                                                        <select name="customer_category_id[]" class="form-control" required>
+                                                        <select name="customer_category_id[]" class="form-control" >
                                                             <option value="" disabled selected>-- Pilih Kategori Konsumen --</option>
                                                             @foreach ($data_customer_categories as $p)
                                                             <option value="{{ $p->id }}" {{ $price->customer_category_id == $p->id ? 'selected' : '' }}>
@@ -188,7 +193,7 @@
                                                     <div class="col-md-5">
                                                         <label for="customer_price">Harga</label>
                                                         <input type="text" name="customer_price[]" class="form-control" value="{{ old('customer_price.' . $index, $price->price) }}"
-                                                            placeholder="Masukkan Harga" oninput="formatPrice(this)" required>
+                                                            placeholder="Masukkan Harga" oninput="formatPrice(this)" >
                                                     </div>
                                                     <div class="col-md-2 d-flex align-items-end">
                                                         <button type="button" class="btn btn-danger btn-sm remove-row"><i class="fa fa-trash"></i></button>

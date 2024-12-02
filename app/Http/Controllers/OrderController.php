@@ -199,14 +199,7 @@ class OrderController extends Controller
             $detail->save();
         }
 
-        // Mengecek saldo cash sebelum melanjutkan transaksi
-        $cash = Cash::find($request->cash_id);
-        if ($cash && $cash->amount < $request->total_cost) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Saldo cash tidak mencukupi untuk transaksi ini.',
-            ], 400); // 400 adalah kode status HTTP untuk permintaan yang salah
-        }
+
 
         // Proses pembayaran dan pembaruan stok hanya jika status pembelian 'Lunas'
         if ($order->status === 'Lunas') {
@@ -247,14 +240,6 @@ class OrderController extends Controller
         return response()->json(['success' => true, 'message' => 'Penjualan berhasil disimpan'], 200);
     }
 
-
-
-
-
-
-
-
-
     /**
      * Display the specified resource.
      */
@@ -269,7 +254,6 @@ class OrderController extends Controller
         // Kirim data ke view
         return view('order.show', compact('order', 'title', 'subtitle'));
     }
-
 
     /**
      * Show the form for editing the specified resource.
@@ -295,49 +279,41 @@ class OrderController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, string $id)
     {
-        // Validasi input dari form
+        // Validasi data
         $request->validate([
             'order_date' => 'required|date',
-            'image' => 'mimes:jpg,jpeg,png,gif|max:4048',
-            'items.*.product_id' => 'required|exists:products,id',
-            'items.*.order_price' => 'required|regex:/^\d+([.,]\d+)*$/',
-            'items.*.quantity' => 'required|integer|min:1',
-        ], [
-            'image.mimes' => 'Bukti yang dimasukkan hanya diperbolehkan berekstensi JPG, JPEG, PNG, dan GIF',
-            'image.max' => 'Ukuran image tidak boleh lebih dari 4 MB',
-            'items.*.product_id.required' => 'Produk harus dipilih.',
-            'items.*.order_price.required' => 'Harga pembelian harus diisi.',
-            'items.*.quantity.required' => 'Jumlah harus diisi.',
+            'product_id' => 'required|array',
+            'quantity' => 'required|array',
+            'order_price' => 'required|array',
+            'total_cost' => 'required|numeric',
+            'status' => 'required',
+            'description' => 'nullable|string',
+            'type_payment' => 'nullable|string',
+            'no_order' => 'nullable|string',
+            'cash_id' => 'nullable|exists:cash,id',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
         ]);
 
-        // Temukan data pembelian berdasarkan ID
         $order = Order::findOrFail($id);
 
-        // Simpan status dan data awal sebelum update
-        $oldStatus = $order->status;
-        $oldData = $order->toArray();
-
-        // Menangani gambar (jika ada)
+        // Proses upload gambar jika ada
         if ($image = $request->file('image')) {
             $destinationPath = 'upload/orders/';
             $originalFileName = $image->getClientOriginalName();
             $imageMimeType = $image->getMimeType();
 
-            // Hapus gambar lama jika ada
             if ($order->image && file_exists(public_path($destinationPath . $order->image))) {
                 @unlink(public_path($destinationPath . $order->image));
             }
 
-            // Proses upload gambar baru
             $imageName = date('YmdHis') . '_' . str_replace(' ', '_', $originalFileName);
-            $image->move($destinationPath, $imageName);
+            $image->move(public_path($destinationPath), $imageName);
 
             $sourceImagePath = public_path($destinationPath . $imageName);
             $webpImagePath = $destinationPath . pathinfo($imageName, PATHINFO_FILENAME) . '.webp';
 
-            // Konversi gambar ke WebP
             switch ($imageMimeType) {
                 case 'image/jpeg':
                     $sourceImage = @imagecreatefromjpeg($sourceImagePath);
@@ -350,76 +326,92 @@ class OrderController extends Controller
             }
 
             if ($sourceImage !== false) {
-                imagewebp($sourceImage, $webpImagePath);
+                imagewebp($sourceImage, public_path($webpImagePath));
                 imagedestroy($sourceImage);
-                @unlink($sourceImagePath); // Menghapus file gambar asli
+                @unlink($sourceImagePath);
                 $order->image = pathinfo($imageName, PATHINFO_FILENAME) . '.webp';
             } else {
                 throw new \Exception('Gagal membaca gambar asli.');
             }
         }
 
-        // Update data pembelian
-        $order->description = $request->description;
-        $order->type_payment = $request->type_payment;
-        $order->order_date = $request->order_date;
-        $order->status = $request->status;
-        $order->cash_id = $request->cash_id;
-        $order->customer_id = $request->customer_id;
-        $order->no_order = $request->no_order;
-        $order->user_id = Auth::id();
-        $order->total_cost = str_replace(['.', ','], '', $request->total_cost);
-        $order->save();
+        $status = $request->status;
 
-        // Mendapatkan ID dari order yang baru saja disimpan
-        $orderId = $order->id;
+        if ($status === 'Lunas') {
+            $cashId = $request->cash_id;
+            $cashAmount = Cash::find($cashId)->amount;
 
-        // Update atau simpan detail order ke dalam database
-        $items = $request->items;
-        foreach ($items as $itemId => $itemData) {
-            $hargaBeliWithoutSeparator = str_replace(['.', ','], '', $itemData['order_price']);
-            $orderItem = OrderItem::findOrNew($itemId); // Update jika item ada, buat baru jika tidak ada
-            $orderItem->order_id = $orderId;
-            $orderItem->product_id = $itemData['product_id'];
-            $orderItem->order_price = $hargaBeliWithoutSeparator;
-            $orderItem->quantity = $itemData['quantity'];
-            $orderItem->total_price = $itemData['quantity'] * $hargaBeliWithoutSeparator;
-            $orderItem->save();
-        }
+            // Tambahkan saldo kas sesuai dengan total biaya penjualan
+            $newCashAmount = $cashAmount + $order->total_cost;
+            Cash::find($cashId)->update(['amount' => $newCashAmount]);
 
-        // Jika status berubah menjadi "Lunas", tambah saldo kas dan kurangi stok produk
-        if ($oldStatus !== 'Lunas' && $order->status === 'Lunas') {
-            // Mengurangi stok produk
-            foreach ($items as $itemId => $itemData) {
-                $orderItem = OrderItem::findOrFail($itemId);
-                $product = Product::find($orderItem->product_id);
+            foreach ($request->product_id as $key => $productId) {
+                $quantity = $request->quantity[$key];
+                $product = Product::find($productId);
 
                 if ($product) {
-                    $product->stock -= $orderItem->quantity;  // Mengurangi stok
-                    $product->save();
-                }
-            }
+                    if ($product->stock < $quantity) {
+                        return response()->json(['success' => false, 'message' => 'Stok produk ' . $product->name . ' tidak mencukupi.']);
+                    }
 
-            // Menambahkan saldo kas
-            $cash = Cash::find($request->cash_id);
-            if ($cash) {
-                $cash->amount += $order->total_cost;  // Menambah saldo kas
-                $cash->save();  // Simpan perubahan kas
-            } else {
-                return response()->json(['error' => 'Kas tidak ditemukan'], 404);
+                    $product->decrement('stock', $quantity);
+                }
             }
         }
 
-        // Simpan log histori
-        $loggedInUserId = Auth::id();
-        $this->simpanLogHistori('Update', 'Order', $order->id, $loggedInUserId, json_encode($oldData), json_encode($order->toArray()));
-
-        // Return response JSON
-        return response()->json([
-            'status' => 'success',
-            'message' => 'Penjualan berhasil diperbarui!',
+        $order->update([
+            'description' => $request->description,
+            'type_payment' => $request->type_payment,
+            'order_date' => $request->order_date,
+            'status' => $request->status,
+            'cash_id' => $request->cash_id,
+            'customer_id' => $request->customer_id,
+            'no_order' => $request->no_order,
+            'user_id' => Auth::id(),
+            'total_cost' => str_replace(['.', ','], '', $request->total_cost),
         ]);
+
+        $newProductIds = $request->product_id;
+        $existingItems = $order->orderItems()->get();
+        $total_cost = 0;
+
+        foreach ($newProductIds as $key => $productId) {
+            $quantity = $request->quantity[$key];
+            $order_price = str_replace(['.', ','], '', $request->order_price[$key]);
+            $total_price = $quantity * $order_price;
+
+            $existingItem = $existingItems->firstWhere('product_id', $productId);
+
+            if ($existingItem) {
+                $existingItem->update([
+                    'quantity' => $quantity,
+                    'order_price' => $order_price,
+                    'total_price' => $total_price,
+                ]);
+            } else {
+                OrderItem::create([
+                    'order_id' => $order->id,
+                    'product_id' => $productId,
+                    'quantity' => $quantity,
+                    'order_price' => $order_price,
+                    'total_price' => $total_price,
+                ]);
+            }
+
+            $total_cost += $total_price;
+        }
+
+        $existingItems->whereNotIn('product_id', $newProductIds)->each(function ($item) {
+            $item->delete();
+        });
+
+        $order->update(['total_cost' => $total_cost]);
+
+        return response()->json(['success' => true, 'message' => 'Penjualan berhasil diperbarui.']);
     }
+
+
+
 
 
 
