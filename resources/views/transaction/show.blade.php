@@ -12,7 +12,7 @@
                     <nav aria-label="breadcrumb">
                         <ol class="breadcrumb">
                             <li class="breadcrumb-item"><a class="text-muted text-decoration-none" href="/">Beranda</a></li>
-                            <li class="breadcrumb-item" aria-current="page"><a class="text-muted text-decoration-none" href="{{ route('suppliers.index') }}">Halaman Supplier</a></li>
+                            <li class="breadcrumb-item" aria-current="page"><a class="text-muted text-decoration-none" href="{{ route('transactions.index') }}">Halaman Transaksi</a></li>
                             <li class="breadcrumb-item" aria-current="page">{{ $subtitle }}</li>
                         </ol>
                     </nav>
@@ -32,36 +32,60 @@
                 <div class="card">
                     <div class="card-body">
                         <div class="table-responsive">
-
                             <div class="row">
+                                <!-- Menampilkan Nama Transaksi -->
                                 <div class="col-xs-12 col-sm-12 col-md-12 mb-3">
                                     <div class="form-item">
-                                        <strong>Nama Supplier:</strong>
-                                        {{ $data_suppliers->name }}
-                                    </div>
-                                </div>
-                                <div class="col-xs-12 col-sm-12 col-md-12 mb-3">
-                                    <div class="form-item">
-                                        <strong>Email:</strong>
-                                        {{ $data_suppliers->email }}
-                                    </div>
-                                </div>
-                                <div class="col-xs-12 col-sm-12 col-md-12 mb-3">
-                                    <div class="form-item">
-                                        <strong>No Telp:</strong>
-                                        {{ $data_suppliers->phone }}
-                                    </div>
-                                </div>
-                                <div class="col-xs-12 col-sm-12 col-md-12 mb-3">
-                                    <div class="form-item">
-                                        <strong>Alamat:</strong>
-                                        {{ $data_suppliers->address }}
+                                        <strong>Nama Transaksi:</strong>
+                                        <p>{{ $data_transactions->name }}</p>
                                     </div>
                                 </div>
                                 
+                                <!-- Menampilkan Tanggal Transaksi -->
+                                <div class="col-xs-12 col-sm-12 col-md-12 mb-3">
+                                    <div class="form-item">
+                                        <strong>Tanggal:</strong>
+                                        <p>{{ $data_transactions->transaction_date }}</p>
+                                    </div>
+                                </div>
+
+                                <!-- Menampilkan Kategori Kas (dropdown) -->
+                                <div class="col-xs-12 col-sm-12 col-md-12 mb-3">
+                                    <div class="form-item">
+                                        <strong>Kategori Kas:</strong>
+                                        <p>{{ $data_cash->where('id', $data_transactions->cash_id)->first()->name ?? 'Tidak Ditemukan' }}</p>
+                                    </div>
+                                </div>
+
+                                <!-- Menampilkan Kategori Transaksi -->
+                                <div class="col-xs-12 col-sm-12 col-md-12 mb-3">
+                                    <div class="form-item">
+                                        <strong>Kategori Transaksi:</strong>
+                                        <p>{{ $data_transaction_categories->where('id', $data_transactions->transaction_category_id)->first()->name ?? 'Tidak Ditemukan' }}</p>
+                                    </div>
+                                </div>
+
+                                <!-- Menampilkan Jumlah Transaksi -->
+                                <div class="col-xs-12 col-sm-12 col-md-12 mb-3">
+                                    <div class="form-item">
+                                        <strong>Jumlah:</strong>
+                                        <p>{{ number_format($data_transactions->amount, 2) }}</p>
+                                    </div>
+                                </div>
+
+                                <!-- Menampilkan Deskripsi (Jika ada) -->
+                                @if($data_transactions->description)
+                                <div class="col-xs-12 col-sm-12 col-md-12 mb-3">
+                                    <div class="form-item">
+                                        <strong>Deskripsi:</strong>
+                                        <p>{{ $data_transactions->description }}</p>
+                                    </div>
+                                </div>
+                                @endif
                             </div>
 
-                            <a class="btn btn-warning mb-2 mt-3" href="{{ route('suppliers.index') }}"><i class="fa fa-undo"></i> Kembali</a>
+                            <!-- Tombol Kembali ke Daftar Transaksi -->
+                            <a class="btn btn-warning mb-2 mt-3" href="{{ route('transactions.index') }}"><i class="fa fa-undo"></i> Kembali</a>
 
                         </div>
                     </div>

@@ -57,6 +57,7 @@
                                         <th>Nama Transaksi</th>
                                         <th>Jumlah</th>
                                         <th>Kategori</th>
+                                        <th>Gambar</th>
                                         <th width="280px">Action</th>
                                     </tr>
                                 </thead>
@@ -66,9 +67,23 @@
                                         <td>{{ $loop->iteration }}</td>
                                         <td>{{ $p->date }}</td>
                                         <td>{{ $p->name }}</td>
-                                        <td>{{ $p->amount }}</td>
-                                        <td>{{ $p->amount }}</td>
+                                        <td>{{ number_format($p->amount, 0, ',', '.') }}</td>
+                                        <td>
+                                            @if($p->category->parent_type == 'kurang')
+                                            <span class="badge bg-danger">{{ $p->category->name }}</span>
+                                            @elseif($p->category->parent_type == 'tambah')
+                                            <span class="badge bg-success">{{ $p->category->name }}</span>
+                                            @else
+                                            <span class="badge bg-primary">{{ $p->category->name }}</span>
+                                            @endif
+                                        </td>
 
+
+                                        <td>
+                                            <a href="/upload/transactions/{{ $p->image }}" target="_blank">
+                                                <img style="max-width:50px; max-height:50px" src="/upload/transactions/{{ $p->image }}" alt="">
+                                            </a>
+                                        </td>
 
                                         <td>
                                             <a class="btn btn-warning btn-sm" href="{{ route('transactions.show', $p->id) }}"><i class="fa fa-eye"></i> Show</a>
