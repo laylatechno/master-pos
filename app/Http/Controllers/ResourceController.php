@@ -46,86 +46,98 @@ class ResourceController extends Controller
     {
         $tableName = $request->input('nama_table');
         $fields = $request->input('fields');
-
+    
         // Validasi: cek apakah tabel sudah ada di database
         if (Schema::hasTable($tableName)) {
             return redirect()->back()->withErrors(['nama_table' => 'Tabel dengan nama tersebut sudah ada di database.'])->withInput();
         }
-
+    
         // Validasi: cek apakah migrasi sudah ada
         $migrationFile = database_path('migrations/' . now()->format('Y_m_d_His') . "_create_{$tableName}_table.php");
         if (File::exists($migrationFile)) {
             return redirect()->back()->withErrors(['nama_table' => 'Migrasi untuk tabel ini sudah ada.'])->withInput();
         }
-
+    
         // Lanjutkan proses pembuatan resource
         Log::info('Fields received:', $fields);
-
-        // Menggunakan nama tabel langsung untuk model dan controller tanpa perubahan singular/plural
-        $modelName = Str::studly($tableName);
-        $controllerName = "{$modelName}Controller";
+    
+        // Menggunakan nama tabel langsung untuk model dan controller tanpa perubahan plural
+        $modelName = Str::studly($tableName); // Model dalam bentuk tunggal
+        $controllerName = "{$modelName}Controller"; // Controller dalam bentuk tunggal
         $controllerNamespace = "App\\Http\\Controllers\\{$controllerName}";
         $resourceRoute = "    Route::resource('{$tableName}', {$controllerName}::class);\n";
         $useController = "use {$controllerNamespace};\n";
-
+    
         // Membuat migration
         Artisan::call('make:migration', [
             'name' => "create_{$tableName}_table"
         ]);
-
+    
         // Mengisi migration dengan field-field
         if (File::exists($migrationFile)) {
             $content = File::get($migrationFile);
             $fieldsMigration = '';
-
+    
             foreach ($fields as $field) {
                 $fieldsMigration .= "\$table->{$field['type']}('{$field['name']}');\n            ";
             }
-
+    
             $content = str_replace(
                 '$table->id();',
                 "\$table->id();\n            $fieldsMigration",
                 $content
             );
-
+    
             File::put($migrationFile, $content);
         }
-
+    
         // Membuat model tanpa perubahan nama
         Artisan::call('make:model', [
             'name' => $modelName
         ]);
-
+    
+        // Menambahkan properti $table dan $guarded pada model
+        $modelFile = app_path("Models/{$modelName}.php");
+        if (File::exists($modelFile)) {
+            $modelContent = File::get($modelFile);
+            $modelContent = str_replace(
+                'class ' . $modelName,
+                "class {$modelName}\n{\n    protected \$table = '{$tableName}';\n    protected \$guarded = [];\n",
+                $modelContent
+            );
+            File::put($modelFile, $modelContent);
+        }
+    
         // Membuat controller dengan resource
         Artisan::call('make:controller', [
             'name' => $controllerName,
             '--resource' => true
         ]);
-
+    
         // Membuat folder views jika belum ada
         $viewFolderPath = resource_path("views/{$tableName}");
         if (!File::exists($viewFolderPath)) {
             File::makeDirectory($viewFolderPath, 0755, true);
         }
-
+    
         // Membuat file view dasar (index, create, edit, show)
         $views = ['index', 'create', 'edit', 'show'];
         foreach ($views as $view) {
             File::put("$viewFolderPath/$view.blade.php", "<!-- Halaman $view untuk $modelName -->");
         }
-
+    
         // Menambahkan use statement dan route baru di dalam grup middleware 'auth' di web.php
         $webRouteFile = base_path('routes/web.php');
         $routeGroupStart = "Route::group(['middleware' => ['auth']], function () {";
-
+    
         if (File::exists($webRouteFile)) {
             $content = File::get($webRouteFile);
-
+    
             // Tambahkan use statement di bagian atas file jika belum ada
             if (strpos($content, $useController) === false) {
                 $content = preg_replace("/(<\?php\n)/", "$1$useController", $content);
             }
-
+    
             // Cari posisi grup 'auth' dan tambahkan route resource baru di dalamnya
             if (strpos($content, $routeGroupStart) !== false) {
                 $content = preg_replace(
@@ -136,10 +148,10 @@ class ResourceController extends Controller
                 File::put($webRouteFile, $content);
             }
         }
-
+    
         // Menjalankan migrasi untuk membuat tabel di database
         Artisan::call('migrate');
-
+    
         // Menyimpan log histori proses pembuatan resource
         $loggedInUserId = Auth::id();
         $this->simpanLogHistori(
@@ -150,7 +162,8 @@ class ResourceController extends Controller
             json_encode(['table_name' => $tableName, 'fields' => $fields]),
             json_encode(['model' => $modelName, 'controller' => $controllerName, 'views' => $views])
         );
-
+    
         return redirect()->route('resource.create')->with('success', "Resource untuk tabel {$tableName} berhasil dibuat dan route ditambahkan.");
     }
+    
 }

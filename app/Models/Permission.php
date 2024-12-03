@@ -18,9 +18,8 @@ class Permission extends Model
     protected $table = 'permissions';
     protected $guarded = [];
 
-    public function customerPrices()
-{
-    return $this->hasMany(customerPrices::class);
-}
-
+    // public function customerPrices()
+    // {
+    //     return $this->hasMany(customerPrices::class);
+    // }
 }

@@ -35,9 +35,9 @@
                         <div class="table-responsive">
                             <div class="row">
                                 <div class="col-lg-12 margin-tb">
-                                    @can('supplier-create')
+                                    @can('customer-create')
                                     <div class="pull-right">
-                                        <a class="btn btn-success mb-2" href="{{ route('suppliers.create') }}"><i class="fa fa-plus"></i> Tambah Data</a>
+                                        <a class="btn btn-success mb-2" href="{{ route('customers.create') }}"><i class="fa fa-plus"></i> Tambah Data</a>
                                     </div>
                                     @endcan
                                 </div>
@@ -56,27 +56,29 @@
                                         <th>Nama Supplier</th>
                                         <th>Email</th>
                                         <th>No Telp</th>
+                                        <th>Kategori</th>
                                         <th>Alamat</th>
                                         <th width="280px">Action</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @foreach ($data_suppliers as $p)
+                                    @foreach ($data_customers as $p)
                                     <tr>
                                         <td>{{ $loop->iteration }}</td>
                                         <td>{{ $p->name }}</td>
                                         <td>{{ $p->email }}</td>
                                         <td>{{ $p->phone }}</td>
+                                        <td>{{ $p->category->name }}</td>
                                         <td>{{ substr($p->address, 0, 10) }}</td>
 
                                         <td>
-                                            <a class="btn btn-warning btn-sm" href="{{ route('suppliers.show', $p->id) }}"><i class="fa fa-eye"></i> Show</a>
-                                            @can('supplier-edit')
-                                            <a class="btn btn-primary btn-sm" href="{{ route('suppliers.edit', $p->id) }}"><i class="fa fa-edit"></i> Edit</a>
+                                            <a class="btn btn-warning btn-sm" href="{{ route('customers.show', $p->id) }}"><i class="fa fa-eye"></i> Show</a>
+                                            @can('customer-edit')
+                                            <a class="btn btn-primary btn-sm" href="{{ route('customers.edit', $p->id) }}"><i class="fa fa-edit"></i> Edit</a>
                                             @endcan
-                                            @can('supplier-delete')
+                                            @can('customer-delete')
                                             <button type="button" class="btn btn-danger btn-sm" onclick="confirmDelete({{ $p->id }})"><i class="fa fa-trash"></i> Delete</button>
-                                            <form id="delete-form-{{ $p->id }}" method="POST" action="{{ route('suppliers.destroy', $p->id) }}" style="display:none;">
+                                            <form id="delete-form-{{ $p->id }}" method="POST" action="{{ route('customers.destroy', $p->id) }}" style="display:none;">
                                                 @csrf
                                                 @method('DELETE')
                                             </form>

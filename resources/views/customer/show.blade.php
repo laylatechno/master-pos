@@ -12,7 +12,7 @@
                     <nav aria-label="breadcrumb">
                         <ol class="breadcrumb">
                             <li class="breadcrumb-item"><a class="text-muted text-decoration-none" href="/">Beranda</a></li>
-                            <li class="breadcrumb-item" aria-current="page"><a class="text-muted text-decoration-none" href="{{ route('suppliers.index') }}">Halaman Supplier</a></li>
+                            <li class="breadcrumb-item" aria-current="page"><a class="text-muted text-decoration-none" href="{{ route('customers.index') }}">Halaman Pelanggan</a></li>
                             <li class="breadcrumb-item" aria-current="page">{{ $subtitle }}</li>
                         </ol>
                     </nav>
@@ -36,32 +36,33 @@
                             <div class="row">
                                 <div class="col-xs-12 col-sm-12 col-md-12 mb-3">
                                     <div class="form-item">
-                                        <strong>Nama Supplier:</strong>
-                                        {{ $data_suppliers->name }}
+                                        <strong>Nama Pelanggan:</strong>
+                                        {{ $data_customers->name }}
                                     </div>
                                 </div>
                                 <div class="col-xs-12 col-sm-12 col-md-12 mb-3">
                                     <div class="form-item">
                                         <strong>Email:</strong>
-                                        {{ $data_suppliers->email }}
+                                        {{ $data_customers->email }}
                                     </div>
                                 </div>
                                 <div class="col-xs-12 col-sm-12 col-md-12 mb-3">
                                     <div class="form-item">
                                         <strong>No Telp:</strong>
-                                        {{ $data_suppliers->phone }}
+                                        {{ $data_customers->phone }}
                                     </div>
                                 </div>
                                 <div class="col-xs-12 col-sm-12 col-md-12 mb-3">
                                     <div class="form-item">
-                                        <strong>Alamat:</strong>
-                                        {{ $data_suppliers->address }}
+                                        <strong>Kategori Pelanggan:</strong>
+                                        {{ $data_customers->category->name ?? 'Kategori tidak tersedia' }}
                                     </div>
                                 </div>
-                                
+
+
                             </div>
 
-                            <a class="btn btn-warning mb-2 mt-3" href="{{ route('suppliers.index') }}"><i class="fa fa-undo"></i> Kembali</a>
+                            <a class="btn btn-warning mb-2 mt-3" href="{{ route('customers.index') }}"><i class="fa fa-undo"></i> Kembali</a>
 
                         </div>
                     </div>

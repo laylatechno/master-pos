@@ -12,7 +12,7 @@
                     <nav aria-label="breadcrumb">
                         <ol class="breadcrumb">
                             <li class="breadcrumb-item"><a class="text-muted text-decoration-none" href="/">Beranda</a></li>
-                            <li class="breadcrumb-item"><a class="text-muted text-decoration-none" href="{{ route('suppliers.index') }}">Halaman Supplier</a></li>
+                            <li class="breadcrumb-item"><a class="text-muted text-decoration-none" href="{{ route('customers.index') }}">Halaman Pelanggan</a></li>
                             <li class="breadcrumb-item">{{ $subtitle }}</li>
                         </ol>
                     </nav>
@@ -43,36 +43,45 @@
                             </div>
                             @endif
 
-                            <form method="POST" action="{{ route('suppliers.update', $data_suppliers->id) }}">
+                            <form method="POST" action="{{ route('customers.update', $data_customers->id) }}">
                                 @csrf
                                 @method('PUT')
 
 
                                 <div class="row">
                                     <div class="form-group mb-3">
-                                        <label for="name">Nama Supplier</label>
-                                        <input type="text" name="name" class="form-control" id="name" value="{{ $data_suppliers->name }}" required>
+                                        <label for="name">Nama Pelanggan</label>
+                                        <input type="text" name="name" class="form-control" id="name" value="{{ $data_customers->name }}" required>
                                     </div>
                                     <div class="form-group mb-3">
                                         <label for="email">Email</label>
-                                        <input type="email" name="email" class="form-control" value="{{ $data_suppliers->email }}" id="email">
+                                        <input type="email" name="email" class="form-control" value="{{ $data_customers->email }}" id="email">
                                     </div>
                                     <div class="form-group mb-3">
                                         <label for="phone">No Telp</label>
-                                        <input type="number" name="phone" class="form-control" value="{{ $data_suppliers->phone }}" id="phone">
+                                        <input type="number" name="phone" class="form-control" value="{{ $data_customers->phone }}" id="phone">
                                     </div>
                                     <div class="form-group mb-3">
-                                        <label for="address">Alamat</label>
-                                        <textarea class="form-control" name="address" id="address"> {{ $data_suppliers->address }}</textarea>
+                                        <label for="customer_category_id">Kategori Pelanggan</label>
+                                        <select id="customer_category_id" name="customer_category_id" class="form-control" required>
+                                            <option value="" disabled>--Pilih Kategori Pelanggan--</option>
+                                            @foreach ($data_customer_categories as $p)
+                                            <option value="{{ $p->id }}"
+                                                {{ (isset($data_customers) && $data_customers->customer_category_id == $p->id) ? 'selected' : '' }}>
+                                                {{ $p->name }}
+                                            </option>
+                                            @endforeach
+                                        </select>
                                     </div>
+
                                     <div class="col-xs-12 col-sm-12 col-md-12 mt-3">
                                         <button type="submit" class="btn btn-primary btn-sm mb-3"><i class="fa fa-save"></i> Simpan</button>
-                                        <a class="btn btn-warning btn-sm mb-3" href="{{ route('suppliers.index') }}"><i class="fa fa-undo"></i> Kembali</a>
+                                        <a class="btn btn-warning btn-sm mb-3" href="{{ route('customers.index') }}"><i class="fa fa-undo"></i> Kembali</a>
                                     </div>
                                 </div>
 
 
-                                
+
                             </form>
                         </div>
                     </div>

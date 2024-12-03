@@ -297,6 +297,8 @@ class OrderController extends Controller
         ]);
 
         $order = Order::findOrFail($id);
+        // Simpan data lama sebelum diupdate
+        $oldData = $order->toArray();
 
         // Proses upload gambar jika ada
         if ($image = $request->file('image')) {
@@ -407,6 +409,20 @@ class OrderController extends Controller
 
         $order->update(['total_cost' => $total_cost]);
 
+
+
+        $newData = $order->refresh()->toArray();
+
+        // Simpan log histori
+        $loggedInUserId = Auth::id();
+        $this->simpanLogHistori(
+            'Update',
+            'Order',
+            $order->id,
+            $loggedInUserId,
+            json_encode($oldData),
+            json_encode($newData)
+        );
         return response()->json(['success' => true, 'message' => 'Penjualan berhasil diperbarui.']);
     }
 

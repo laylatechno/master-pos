@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\LogHistori;
 use App\Models\Customer;
+use App\Models\CustomerCategory;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 use Illuminate\Http\RedirectResponse;
@@ -18,10 +19,10 @@ class CustomerController extends Controller
      */
     function __construct()
     {
-        $this->middleware('permission:supplier-list|supplier-create|supplier-edit|supplier-delete', ['only' => ['index', 'show']]);
-        $this->middleware('permission:supplier-create', ['only' => ['create', 'store']]);
-        $this->middleware('permission:supplier-edit', ['only' => ['edit', 'update']]);
-        $this->middleware('permission:supplier-delete', ['only' => ['destroy']]);
+        $this->middleware('permission:customer-list|customer-create|customer-edit|customer-delete', ['only' => ['index', 'show']]);
+        $this->middleware('permission:customer-create', ['only' => ['create', 'store']]);
+        $this->middleware('permission:customer-edit', ['only' => ['edit', 'update']]);
+        $this->middleware('permission:customer-delete', ['only' => ['destroy']]);
     }
 
     private function simpanLogHistori($aksi, $tabelAsal, $idEntitas, $pengguna, $dataLama, $dataBaru)
@@ -48,7 +49,7 @@ class CustomerController extends Controller
         $title = "Halaman Pelanggan";
         $subtitle = "Menu Pelanggan";
         $data_customers = Customer::all();
-        return view('supplier.index', compact('data_customers', 'title', 'subtitle'));
+        return view('customer.index', compact('data_customers', 'title', 'subtitle'));
     }
 
 
@@ -61,7 +62,8 @@ class CustomerController extends Controller
     {
         $title = "Halaman Tambah Pelanggan";
         $subtitle = "Menu Tambah Pelanggan";
-        return view('supplier.create', compact('title', 'subtitle'));
+        $data_customer_categories = CustomerCategory::all();
+        return view('customer.create', compact('title', 'subtitle', 'data_customer_categories'));
     }
 
 
@@ -81,11 +83,11 @@ class CustomerController extends Controller
             'name.unique' => 'Nama sudah terdaftar.',
         ]);
 
-        $supplier = Customer::create($request->all());
+        $customer = Customer::create($request->all());
 
         $loggedInUserId = Auth::id();
         // Simpan log histori untuk operasi Create dengan user_id yang sedang login
-        $this->simpanLogHistori('Create', 'Customer', $supplier->id, $loggedInUserId, null, json_encode($supplier));
+        $this->simpanLogHistori('Create', 'Customer', $customer->id, $loggedInUserId, null, json_encode($customer));
         return redirect()->route('customers.index')
             ->with('success', 'Pelanggan berhasil dibuat.');
     }
@@ -97,7 +99,7 @@ class CustomerController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  \App\Customer  $supplier
+     * @param  \App\Customer  $customer
      * @return \Illuminate\Http\Response
      */
     public function show($id): View
@@ -106,22 +108,23 @@ class CustomerController extends Controller
         $title = "Halaman Lihat Pelanggan";
         $subtitle = "Menu Lihat Pelanggan";
         $data_customers = Customer::find($id);
-        return view('supplier.show', compact('data_customers', 'title', 'subtitle'));
+        return view('customer.show', compact('data_customers', 'title', 'subtitle'));
     }
 
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  \App\Customer  $supplier
+     * @param  \App\Customer  $customer
      * @return \Illuminate\Http\Response
      */
     public function edit($id): View
     {
         $title = "Halaman Edit Pelanggan";
         $subtitle = "Menu Edit Pelanggan";
-        $data_customers = Customer::findOrFail($id); // Data menu item yang sedang diedit
+        $data_customer_categories = CustomerCategory::all();
+        $data_customers = Customer::with('category')->findOrFail($id); // Memuat relasi category
 
-        return view('supplier.edit', compact('data_customers', 'title', 'subtitle'));
+        return view('customer.edit', compact('data_customers', 'title', 'subtitle', 'data_customer_categories'));
     }
 
 
@@ -130,7 +133,7 @@ class CustomerController extends Controller
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\Customer  $supplier
+     * @param  \App\Models\Customer  $customer
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, $id): RedirectResponse
@@ -143,28 +146,28 @@ class CustomerController extends Controller
         ]);
 
         // Cari data berdasarkan ID
-        $supplier = Customer::find($id);
+        $customer = Customer::find($id);
 
         // Jika data tidak ditemukan
-        if (!$supplier) {
+        if (!$customer) {
             return redirect()->route('customers.index')
                 ->with('error', 'Data Customer tidak ditemukan.');
         }
 
         // Menyimpan data lama sebelum update
-        $oldCustomersnData = $supplier->toArray();
+        $oldCustomersnData = $customer->toArray();
 
         // Melakukan update data
-        $supplier->update($request->all());
+        $customer->update($request->all());
 
         // Mendapatkan ID pengguna yang sedang login
         $loggedInUserId = Auth::id();
 
         // Mendapatkan data baru setelah update
-        $newCustomersnData = $supplier->fresh()->toArray();
+        $newCustomersnData = $customer->fresh()->toArray();
 
         // Menyimpan log histori untuk operasi Update
-        $this->simpanLogHistori('Update', 'Customer', $supplier->id, $loggedInUserId, json_encode($oldCustomersnData), json_encode($newCustomersnData));
+        $this->simpanLogHistori('Update', 'Customer', $customer->id, $loggedInUserId, json_encode($oldCustomersnData), json_encode($newCustomersnData));
 
         return redirect()->route('customers.index')
             ->with('success', 'Pelanggan berhasil diperbaharui');
@@ -175,16 +178,16 @@ class CustomerController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\Customer  $supplier
+     * @param  \App\Customer  $customer
      * @return \Illuminate\Http\Response
      */
     public function destroy($id)
     {
-        $supplier = Customer::find($id);
-        $supplier->delete();
+        $customer = Customer::find($id);
+        $customer->delete();
         $loggedInCustomerId = Auth::id();
-        // Simpan log histori untuk operasi Delete dengan supplier_id yang sedang login dan informasi data yang dihapus
-        $this->simpanLogHistori('Delete', 'Customer', $id, $loggedInCustomerId, json_encode($supplier), null);
+        // Simpan log histori untuk operasi Delete dengan customer_id yang sedang login dan informasi data yang dihapus
+        $this->simpanLogHistori('Delete', 'Customer', $id, $loggedInCustomerId, json_encode($customer), null);
         // Redirect kembali dengan pesan sukses
         return redirect()->route('customers.index')->with('success', 'Pelanggan berhasil dihapus');
     }

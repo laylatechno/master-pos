@@ -1,11 +1,11 @@
 <?php
+use App\Http\Controllers\SlidersController;
+use App\Http\Controllers\TransactionsController;
+use App\Http\Controllers\TransactionCategoriesController;
+use App\Http\Controllers\ExpensesController;
 
-use App\Http\Controllers\PurchaseOrdersController;
 use App\Http\Controllers\CashController;
 use App\Http\Controllers\PurchaseController;
-use App\Http\Controllers\CustomerCategoryController;
-use App\Http\Controllers\ShiftsController;
-use App\Http\Controllers\OrderItemsController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\HomeController;
@@ -36,6 +36,15 @@ Route::get('/', function () {
 Route::get('/home', [HomeController::class, 'index'])->name('home');
 
 Route::group(['middleware' => ['auth']], function () {
+    Route::resource('sliders', SlidersController::class);
+
+    Route::resource('transactions', TransactionsController::class);
+
+    Route::resource('transaction_categories', TransactionCategoriesController::class);
+
+    Route::resource('expenses', ExpensesController::class);
+
+
 
     Route::resource('cash', CashController::class);
 
@@ -53,7 +62,6 @@ Route::group(['middleware' => ['auth']], function () {
 
 
 
-    Route::resource('shifts', ShiftsController::class);
 
 
     Route::resource('orders', OrderController::class);

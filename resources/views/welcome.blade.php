@@ -39,7 +39,7 @@
     </div>
     <div class="w3-display-middle">
       <a href="{{ route('login') }}">
-        <h1 class="w3-jumbo w3-animate-top">MY LOGIN SYSTEM</h1>
+        <h1 class="w3-jumbo w3-animate-top" style="text-align: center;">Login {{ $profil->nama_profil }}</h1>
       </a>
       <hr class="w3-border-grey" style="margin:auto;width:40%">
       <p class="w3-large w3-center">Silahkan Login Untuk Menggunakan Sistem Ini</p>
