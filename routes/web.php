@@ -1,9 +1,4 @@
 <?php
-use App\Http\Controllers\SlidersController;
-use App\Http\Controllers\TransactionsController;
-use App\Http\Controllers\TransactionCategoriesController;
-use App\Http\Controllers\ExpensesController;
-
 use App\Http\Controllers\CashController;
 use App\Http\Controllers\PurchaseController;
 use App\Http\Controllers\CategoryController;
@@ -20,6 +15,8 @@ use App\Http\Controllers\ResourceController;
 use App\Http\Controllers\RolesController;
 use App\Http\Controllers\RouteController;
 use App\Http\Controllers\SupplierController;
+use App\Http\Controllers\TransactionCategoryController;
+use App\Http\Controllers\TransactionController;
 use App\Http\Controllers\UnitController;
 use App\Http\Controllers\UsersController;
 use Illuminate\Support\Facades\Auth;
@@ -36,47 +33,21 @@ Route::get('/', function () {
 Route::get('/home', [HomeController::class, 'index'])->name('home');
 
 Route::group(['middleware' => ['auth']], function () {
-    Route::resource('sliders', SlidersController::class);
-
-    Route::resource('transactions', TransactionsController::class);
-
-    Route::resource('transaction_categories', TransactionCategoriesController::class);
-
-    Route::resource('expenses', ExpensesController::class);
-
-
-
+    Route::resource('transactions', TransactionController::class);
+    Route::resource('transaction_categories', TransactionCategoryController::class);
     Route::resource('cash', CashController::class);
-
-
     Route::resource('purchases', PurchaseController::class);
     Route::get('/purchases/{id}/print-invoice', [PurchaseController::class, 'printInvoice'])->name('purchases.print_invoice');
     Route::put('purchases/{purchase}', [PurchaseController::class, 'update'])->name('purchases.update');
-
-
     Route::resource('suppliers', SupplierController::class);
-
-
-
     Route::resource('customers', CustomerController::class);
-
-
-
-
-
     Route::resource('orders', OrderController::class);
     Route::get('/orders/{id}/print-invoice', [OrderController::class, 'printInvoice'])->name('orders.print_invoice');
     Route::put('orders/{order}', [OrderController::class, 'update'])->name('orders.update');
-
     Route::resource('units', UnitController::class);
-
     Route::resource('products', ProductController::class);
     Route::get('/get-product-price', [ProductController::class, 'getProductPrice']);
-
-
     Route::resource('categories', CategoryController::class);
-
-
     Route::resource('routes', RouteController::class);
     Route::get('/generate-routes', [RouteController::class, 'generateRoutes'])->name('routes.generate');
     Route::resource('log_histori', LogHistoriController::class);
