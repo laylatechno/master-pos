@@ -74,7 +74,7 @@ class OrderController extends Controller
 
         // Mengambil data yang diperlukan
         $data_users = User::all();
-        $data_products = Product::all();
+        $data_products = Product::where('stock', '>', 0)->get();
         $data_customers = Customer::all();
         $data_orders = Order::all();
         $data_cashes = Cash::all();
@@ -177,6 +177,11 @@ class OrderController extends Controller
         $order->cash_id = $request->cash_id;
         $order->total_cost = str_replace(['.', ','], '', $request->total_cost);
         $order->status = $request->status;
+        $order->total_cost_before = $request->total_cost_before;
+        $order->percent_discount = $request->percent_discount;
+        $order->amount_discount = $request->amount_discount;
+        $order->input_payment = $request->input_payment;
+        $order->return_payment = $request->return_payment;
         $order->description = $request->description;
         $order->save();
 
@@ -263,12 +268,12 @@ class OrderController extends Controller
         $title = "Halaman Lihat Penjualan";
         $subtitle = "Menu Lihat Penjualan";
         // Ambil data pembelian berdasarkan ID
-        $order = Order::with('orderItems.product')->findOrFail($id);
+        $order = Order::with(['customer', 'user', 'orderItems.product'])->findOrFail($id);
 
 
         // Ambil data lainnya yang dibutuhkan untuk dropdown
         $data_customers = Customer::all();
-        $data_products = Product::all();
+        $data_products = Product::where('stock', '>', 0)->get();
         $data_cashes = Cash::all();
 
         // Kirim data ke view
@@ -295,27 +300,26 @@ class OrderController extends Controller
             'cash_id' => 'nullable|exists:cash,id',
             'image' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
         ]);
-
+    
         $order = Order::findOrFail($id);
-        // Simpan data lama sebelum diupdate
         $oldData = $order->toArray();
-
-        // Proses upload gambar jika ada
+    
+        // Proses upload gambar
         if ($image = $request->file('image')) {
             $destinationPath = 'upload/orders/';
             $originalFileName = $image->getClientOriginalName();
             $imageMimeType = $image->getMimeType();
-
+    
             if ($order->image && file_exists(public_path($destinationPath . $order->image))) {
                 @unlink(public_path($destinationPath . $order->image));
             }
-
+    
             $imageName = date('YmdHis') . '_' . str_replace(' ', '_', $originalFileName);
             $image->move(public_path($destinationPath), $imageName);
-
+    
             $sourceImagePath = public_path($destinationPath . $imageName);
             $webpImagePath = $destinationPath . pathinfo($imageName, PATHINFO_FILENAME) . '.webp';
-
+    
             switch ($imageMimeType) {
                 case 'image/jpeg':
                     $sourceImage = @imagecreatefromjpeg($sourceImagePath);
@@ -326,7 +330,7 @@ class OrderController extends Controller
                 default:
                     throw new \Exception('Tipe MIME tidak didukung.');
             }
-
+    
             if ($sourceImage !== false) {
                 imagewebp($sourceImage, public_path($webpImagePath));
                 imagedestroy($sourceImage);
@@ -336,31 +340,7 @@ class OrderController extends Controller
                 throw new \Exception('Gagal membaca gambar asli.');
             }
         }
-
-        $status = $request->status;
-
-        if ($status === 'Lunas') {
-            $cashId = $request->cash_id;
-            $cashAmount = Cash::find($cashId)->amount;
-
-            // Tambahkan saldo kas sesuai dengan total biaya penjualan
-            $newCashAmount = $cashAmount + $order->total_cost;
-            Cash::find($cashId)->update(['amount' => $newCashAmount]);
-
-            foreach ($request->product_id as $key => $productId) {
-                $quantity = $request->quantity[$key];
-                $product = Product::find($productId);
-
-                if ($product) {
-                    if ($product->stock < $quantity) {
-                        return response()->json(['success' => false, 'message' => 'Stok produk ' . $product->name . ' tidak mencukupi.']);
-                    }
-
-                    $product->decrement('stock', $quantity);
-                }
-            }
-        }
-
+    
         $order->update([
             'description' => $request->description,
             'type_payment' => $request->type_payment,
@@ -368,22 +348,26 @@ class OrderController extends Controller
             'status' => $request->status,
             'cash_id' => $request->cash_id,
             'customer_id' => $request->customer_id,
-            'no_order' => $request->no_order,
+            'total_cost_before' => $order->total_cost, // Simpan nilai lama
+            'total_cost' => str_replace(['.', ','], '', $request->total_cost), // Gunakan input form
+            'percent_discount' => $request->percent_discount,
+            'amount_discount' => $request->amount_discount,
+            'input_payment' => $request->input_payment,
+            'return_payment' => $request->return_payment,
             'user_id' => Auth::id(),
-            'total_cost' => str_replace(['.', ','], '', $request->total_cost),
         ]);
-
+    
+        // Update atau tambahkan order item
         $newProductIds = $request->product_id;
         $existingItems = $order->orderItems()->get();
-        $total_cost = 0;
-
+    
         foreach ($newProductIds as $key => $productId) {
             $quantity = $request->quantity[$key];
             $order_price = str_replace(['.', ','], '', $request->order_price[$key]);
             $total_price = $quantity * $order_price;
-
+    
             $existingItem = $existingItems->firstWhere('product_id', $productId);
-
+    
             if ($existingItem) {
                 $existingItem->update([
                     'quantity' => $quantity,
@@ -399,21 +383,14 @@ class OrderController extends Controller
                     'total_price' => $total_price,
                 ]);
             }
-
-            $total_cost += $total_price;
         }
-
+    
         $existingItems->whereNotIn('product_id', $newProductIds)->each(function ($item) {
             $item->delete();
         });
-
-        $order->update(['total_cost' => $total_cost]);
-
-
-
-        $newData = $order->refresh()->toArray();
-
+    
         // Simpan log histori
+        $newData = $order->refresh()->toArray();
         $loggedInUserId = Auth::id();
         $this->simpanLogHistori(
             'Update',
@@ -423,8 +400,10 @@ class OrderController extends Controller
             json_encode($oldData),
             json_encode($newData)
         );
+    
         return response()->json(['success' => true, 'message' => 'Penjualan berhasil diperbarui.']);
     }
+    
 
 
 

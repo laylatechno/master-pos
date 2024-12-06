@@ -109,7 +109,13 @@
                         @endif
 
 
+                        <div class="col-md-12 mb-3 mt-3">
+                            <div class="form-group">
+                                <input type="text" class="form-control" id="barcode" name="barcode" placeholder="Scan barcode produk" autofocus>
+                            </div>
+                        </div>
 
+                        <hr>
 
 
                         <form id="form-edit-order" enctype="multipart/form-data">
@@ -120,7 +126,6 @@
                                         id="no_order" name="no_order"
                                         value="{{ $order->no_order }}">{{ $order->no_order }}</input></b></h5>
 
-                            <br>
                             <hr>
                             <div class="form-group mb-3 col-md-6">
                                 <label for="status" class="mb-2"> Status Pembayaran : </label><br>
@@ -171,7 +176,11 @@
                                         <select class="form-control product-select" id="product_id">
                                             <option value="" disabled selected>-- Pilih Produk --</option>
                                             @foreach ($data_products as $product)
-                                            <option value="{{ $product->id }}" data-name="{{ $product->name }}" data-order-price="{{ $product->cost_price }}">
+                                            <option value="{{ $product->id }}"
+                                                data-name="{{ $product->name }}"
+                                                data-order-price="{{ $product->cost_price }}"
+                                                data-stock="{{ $product->stock }}"
+                                                data-barcode="{{ $product->barcode }}">
                                                 {{ $product->name }}
                                             </option>
                                             @endforeach
@@ -197,13 +206,15 @@
 
                                 <div class="product-list mb-4">
                                     @foreach ($data_products as $produkItem)
-                                    <div class="product-item" data-id="{{ $produkItem->id }}"
+                                    <div class="product-item"
+                                        data-id="{{ $produkItem->id }}"
                                         data-name="{{ $produkItem->name }}"
                                         data-stock="{{ $produkItem->stock }}"
                                         data-price="{{ $produkItem->cost_price }}">
                                         <img src="/upload/products/{{ $produkItem->image }}" alt="{{ $produkItem->name }}" />
-                                        <p>{{ $produkItem->name }}</p> <!-- Nama produk di sini -->
+                                        <p>{{ $produkItem->name }}</p>
                                     </div>
+
                                     @endforeach
                                 </div>
 
@@ -213,11 +224,12 @@
                                         <thead>
                                             <tr>
                                                 <th width="5%">No</th>
-                                                <th>Produk</th>
+                                                <th style="text-align: left;">Produk</th>
                                                 <th>Harga</th>
+                                                <th>Stock</th>
                                                 <th width="15%">Qty</th>
                                                 <th>Total</th>
-                                                <th>Aksi</th>
+                                                <th width="5%">Aksi</th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -232,6 +244,9 @@
                                                     <input type="text" class="form-control order_price" name="order_price[]" value="{{ $item->order_price }}">
                                                 </td>
                                                 <td>
+                                                    <input type="text" class="form-control stock" name="stock[]" value="{{ $item->product->stock }}">
+                                                </td>
+                                                <td>
                                                     <input type="number" class="form-control quantity" name="quantity[]" value="{{ $item->quantity }}">
                                                 </td>
                                                 <td>
@@ -241,8 +256,8 @@
                                                     <button type="button" class="btn btn-danger btn-sm btn-remove-product"><i class="fas fa-trash"></i></button>
                                                 </td>
                                             </tr>
-
                                             @endforeach
+
                                         </tbody>
                                     </table>
                                 </div>
@@ -250,25 +265,51 @@
 
                                 <div class="row mt-4">
                                     <div class="col-md-6 mb-3">
-                                        <h5 style="color: red; font-size:30px;" class="badge badge-danger"><b>Total
-                                                Bayar: </b> Rp.<span id="total_cost">{{ number_format(old('total_cost', $order->total_cost ?? 0), 0, ',', '.') }}</span></h5>
+                                        <h5 style="color: red; font-size:30px;" class="badge badge-danger"><b>Total Bayar: </b> Rp.
+                                            <span id="total_cost">{{ number_format(old('total_cost', $order->total_cost ?? 0), 0, ',', '.') }}</span>
+                                        </h5>
                                         <input type="hidden" name="total_cost" id="total_cost_input" class="form-control total_cost"
                                             value="{{ old('total_cost', $order->total_cost ?? 0) }}">
+                                        <input type="" name="total_cost_before" id="total_cost_before_input" class="form-control total_cost_before"
+                                            value="{{ old('total_cost_before', $order->total_cost_before ?? 0) }}">
                                         <hr>
-
+                                        <h1 style="color: red" id="info_payment"></h1>
                                     </div>
-
-
                                     <div class="col-md-6 mb-3">
-                                        <div class="form-group" hidden>
-                                            <label for="input_payment">Bayar:</label>
-                                            <input type="text" class="form-control" id="input_payment" name="input_payment" value="{{ old('input_payment', $order->input_payment ?? '') }}">
+                                        <div class="form-group">
+                                            <label for="percent_discount">Diskon (%):</label>
+                                            <input
+                                                type="number"
+                                                class="form-control"
+                                                id="percent_discount"
+                                                name="percent_discount"
+                                                min="0"
+                                                max="100"
+                                                value="{{ old('percent_discount', $order->percent_discount ?? '0') }}">
                                         </div>
-                                        <div class="form-group" hidden>
+                                        <div class="form-group">
+                                            <label for="amount_discount">Diskon (Jumlah):</label>
+                                            <input
+                                                type="text"
+                                                class="form-control"
+                                                id="amount_discount"
+                                                name="amount_discount"
+                                                value="{{ old('amount_discount', $order->amount_discount ?? '0') }}">
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="input_payment">Bayar:</label>
+                                            <input
+                                                type="text"
+                                                class="form-control"
+                                                id="input_payment"
+                                                name="input_payment"
+                                                value="{{ old('input_payment', $order->input_payment ?? '') }}">
+                                        </div>
+
+                                        <div class="form-group">
                                             <label for="return_payment">Kembalian:</label>
                                             <input type="text" class="form-control" id="return_payment" name="return_payment" readonly value="{{ old('return_payment', $order->return_payment ?? '') }}">
                                         </div>
-
 
                                         <div class="form-group mb-3">
                                             <label for="type_payment">Jenis Pembayaran:</label>
@@ -390,51 +431,16 @@
 
 <script>
     $(document).ready(function() {
-        // Fungsi untuk format Rupiah
-        function formatRupiah(angka) {
-            var numberString = angka.toString().replace(/[^,\d]/g, ''),
-                split = numberString.split(','),
-                sisa = split[0].length % 3,
-                rupiah = split[0].substr(0, sisa),
-                ribuan = split[0].substr(sisa).match(/\d{3}/gi);
-
-            if (ribuan) {
-                separator = sisa ? '.' : '';
-                rupiah += separator + ribuan.join('.');
-            }
-            rupiah = split[1] !== undefined ? rupiah + ',' + split[1] : rupiah;
-            return rupiah;
-        }
-
-        // Fungsi untuk menghitung total
-        function calculateTotal() {
-            var totalBayar = 0;
-
-            // Iterasi setiap baris pada tabel
-            $('#cart-table tbody tr').each(function() {
-                var $row = $(this); // Mengambil baris saat ini
-                var quantity = parseInt($row.find('.quantity').val()) || 0; // Mengambil nilai quantity
-                var hargaBeli = parseInt($row.find('.order_price').val().replace(/\./g, '')) || 0; // Mengambil nilai harga
-
-                // Hitung total per baris
-                var total = quantity * hargaBeli;
-                $row.find('.total').val(formatRupiah(total)); // Set nilai total pada input
-
-                // Tambahkan ke totalBayar
-                totalBayar += total;
-            });
-
-            // Set nilai total keseluruhan di elemen dengan id total_cost
-            $('#total_cost').text(formatRupiah(totalBayar));
-            $('.total_cost').val(totalBayar); // Jika nilai ingin disimpan sebagai angka (bukan teks Rupiah)
-        }
-
 
         // Panggil calculateTotal setiap kali quantity atau order_price diubah
         $(document).on('input', '.quantity, .order_price', function() {
             calculateTotal(); // Hitung ulang total saat ada perubahan
         });
 
+        // Panggil calculateTotal setiap kali diskon berubah
+        $(document).on('input', '#percent_discount, #amount_discount', function() {
+            calculateTotal(); // Hitung ulang total saat diskon berubah
+        });
         // Fungsi untuk validasi perubahan manual pada input quantity
         $(document).on('change', '.quantity', function() {
             const quantityInput = $(this);
@@ -517,6 +523,9 @@
                                     <input type="text" class="form-control order_price" name="order_price[]" value="${formatRupiah(orderPrice)}">
                                 </td>
                                 <td>
+                                    <input type="number" class="form-control stock" name="stock[]" value="${productStock}" readonly>
+                                </td>
+                                <td>
                                     <input type="number" class="form-control quantity" name="quantity[]" value="1">
                                 </td>
                                 <td>
@@ -527,6 +536,7 @@
                                 </td>
                             </tr>
                         `);
+
 
                     }
 
@@ -542,74 +552,197 @@
 
 
         // Tambahkan produk ke tabel
-        $('#product_id').change(function() {
-            const selectedOption = $(this).find(':selected');
-            const productId = selectedOption.val();
-            const productName = selectedOption.data('name');
-            const productStock = selectedOption.data('stock');
-            const customerCategoryId = $('#customer_id').val();
+        // Event listener ketika dropdown produk berubah
+        $('#product_id').on('change', function() {
+            // Ambil nilai dari option yang dipilih
+            var selectedProductId = $(this).val();
+            var selectedProductName = $('#product_id option:selected').text();
+            var selectedProductStock = $('#product_id option:selected').data('stock');
+            var selectedProductPrice = $('#product_id option:selected').data('order-price');
+            var customerCategoryId = $('#name').val(); // Ambil ID kategori pelanggan
 
-            if (!productId) return;
+            // Debugging untuk memastikan nilai diambil dengan benar
+            console.log("Selected Product ID:", selectedProductId);
+            console.log("Selected Product Name:", selectedProductName);
+            console.log("Selected Product Stock:", selectedProductStock);
+            console.log("Selected Product Price:", selectedProductPrice);
 
-            // Ambil harga berdasarkan kategori pelanggan
-            $.ajax({
-                url: '/get-product-price', // URL controller
-                method: 'GET',
-                data: {
-                    product_id: productId,
-                    customer_category_id: customerCategoryId
-                },
-                success: function(response) {
-                    const orderPrice = parseFloat(response.price) || 0;
+            // Validasi nilai stok
+            if (isNaN(selectedProductStock)) {
+                console.error("Stock is not valid:", selectedProductStock);
+                selectedProductStock = 0; // Set nilai default jika tidak valid
+            }
 
-                    // Cek apakah produk sudah ada di tabel
-                    const existingRow = $(`table tbody tr[data-id="${productId}"]`);
-                    if (existingRow.length) {
-                        const quantityInput = existingRow.find('.quantity');
-                        const currentQty = parseInt(quantityInput.val() || 0);
-                        if (currentQty < productStock) {
-                            const newQuantity = currentQty + 1;
-                            quantityInput.val(newQuantity);
-                            existingRow.find('.order_price').val(formatRupiah(orderPrice));
-                            const totalInput = existingRow.find('.total');
-                            totalInput.val(formatRupiah(newQuantity * orderPrice));
+            if (customerCategoryId) {
+                // Jika ada kategori pelanggan, ambil harga dari server
+                $.ajax({
+                    url: '/get-product-price', // Endpoint untuk mengambil harga
+                    method: 'GET',
+                    data: {
+                        product_id: selectedProductId,
+                        customer_category_id: customerCategoryId
+                    },
+                    success: function(response) {
+                        console.log("Response from server:", response); // Debug response dari server
+
+                        if (response && response.price) {
+                            selectedProductPrice = response.price; // Update harga dari server
                         } else {
-                            alert("Stok produk sudah habis!");
+                            console.log("Price is missing in response");
                         }
-                    } else {
-                        $('table#cart-table tbody').append(`
-                            <tr data-id="${productId}" data-stock="${productStock}">
-                                <td>${$('table#cart-table tbody tr').length + 1}</td>
-                                <td>
-                                    <input type="hidden" name="product_id[]" value="${productId}">
-                                    ${productName}
-                                </td>
-                                <td>
-                                    <input type="text" class="form-control order_price" name="order_price[]" value="${formatRupiah(orderPrice)}">
-                                </td>
-                                <td>
-                                    <input type="number" class="form-control quantity" name="quantity[]" value="1">
-                                </td>
-                                <td>
-                                    <input type="text" class="form-control total" name="total[]" value="${formatRupiah(orderPrice)}" readonly>
-                                </td>
-                                <td>
-                                    <button type="button" class="btn btn-danger btn-sm btn-remove-product"><i class="fas fa-trash"></i></button>
-                                </td>
-                            </tr>
-                        `);
 
+                        // Update row di tabel
+                        updateCartRow(selectedProductId, selectedProductName, selectedProductStock, selectedProductPrice);
+                    },
+                    error: function() {
+                        console.error("Error fetching price from server");
                     }
-
-                    // Hitung total setelah update DOM
-                    calculateTotal();
-                },
-                error: function() {
-                    alert('Gagal mengambil harga produk.');
-                }
-            });
+                });
+            } else {
+                // Jika tidak ada kategori pelanggan, langsung update tabel
+                updateCartRow(selectedProductId, selectedProductName, selectedProductStock, selectedProductPrice);
+            }
         });
 
+        // Fungsi untuk menambahkan atau memperbarui baris di tabel
+        function updateCartRow(productId, productName, productStock, productPrice) {
+            console.log("Updating cart row with:", productId, productName, productStock, productPrice);
+
+            if (isNaN(productPrice)) {
+                console.error("Product Price is not valid:", productPrice);
+                productPrice = 0;
+            }
+
+            // Cek apakah produk sudah ada di tabel
+            var existingProductRow = $('#cart-table tbody tr').filter(function() {
+                return $(this).find('input[name="product_id[]"]').val() == productId;
+            });
+
+            if (existingProductRow.length > 0) {
+                // Tambahkan jumlahnya
+                var quantityInput = existingProductRow.find('.quantity');
+                var currentQty = parseInt(quantityInput.val());
+                if (currentQty < productStock) {
+                    quantityInput.val(currentQty + 1);
+                } else {
+                    alert("Stok produk sudah habis!");
+                }
+            } else {
+                // Tambahkan baris baru
+                var newRow = `
+                    <tr>
+                        <td></td>
+                        <td style="text-align:left;">
+                            <input type="hidden" name="product_id[]" value="${productId}">
+                            <label>${productName}</label>
+                        </td>
+                        <td>
+                            <input type="text" class="form-control order_price" name="order_price[]" value="${formatRupiah(productPrice)}">
+                        </td>
+                        <td>
+                            <input type="text" class="form-control stock" name="stock[]" value="${productStock}" readonly>
+                        </td>
+                        <td>
+                            <input type="number" class="form-control quantity" name="quantity[]" value="1" max="${productStock}">
+                        </td>
+                        <td>
+                            <input type="text" class="form-control total" name="total[]" readonly>
+                        </td>
+                        <td>
+                            <button type="button" class="btn btn-danger btn-sm btn-remove-product"><i class="fas fa-trash"></i></button>
+                        </td>
+                    </tr>`;
+
+                $('#cart-table tbody').append(newRow);
+                console.log("Baris baru ditambahkan:", newRow);
+            }
+
+            updateRowNumbers();
+            calculateTotal();
+        }
+
+
+        function updateRowNumbers() {
+            $('#scroll_hor tbody tr').each(function(index, row) {
+                $(row).find('td:first').text(index + 1);
+            });
+        }
+
+
+        // Fungsi untuk format Rupiah
+        function formatRupiah(angka) {
+            var numberString = angka.toString().replace(/[^,\d]/g, ''),
+                split = numberString.split(','),
+                sisa = split[0].length % 3,
+                rupiah = split[0].substr(0, sisa),
+                ribuan = split[0].substr(sisa).match(/\d{3}/gi);
+
+            if (ribuan) {
+                separator = sisa ? '.' : '';
+                rupiah += separator + ribuan.join('.');
+            }
+            rupiah = split[1] !== undefined ? rupiah + ',' + split[1] : rupiah;
+            return rupiah;
+        }
+
+        function calculateTotal() {
+            var totalBayar = 0; // Total setelah perhitungan diskon
+            var totalCostBefore = 0; // Total sebelum diskon atau pengurangan
+
+            // Iterasi setiap baris pada tabel
+            $('#cart-table tbody tr').each(function() {
+                var $row = $(this);
+                var quantity = parseInt($row.find('.quantity').val()) || 0;
+                var hargaBeli = parseInt($row.find('.order_price').val().replace(/\./g, '')) || 0;
+
+                // Hitung total per baris
+                var total = quantity * hargaBeli;
+                $row.find('.total').val(formatRupiah(total)); // Tampilkan total di kolom "total"
+
+                // Tambahkan ke total keseluruhan untuk totalCostBefore
+                totalCostBefore += total;
+            });
+
+            // Tambahkan logika diskon (jika ada)
+            var discountPercent = parseFloat($('#percent_discount').val()) || 0;
+            var discountAmount = parseInt($('#amount_discount').val().replace(/\./g, '')) || 0;
+
+            // Perhitungan diskon
+            var discountValue = totalCostBefore * (discountPercent / 100);
+            totalBayar = totalCostBefore - discountValue - discountAmount;
+
+            // Update nilai total ke elemen
+            $('#total_cost').text(formatRupiah(totalBayar));
+            $('.total_cost').val(totalBayar < 0 ? 0 : totalBayar); // Simpan angka
+            $('.total_cost_before').val(totalCostBefore); // Simpan total sebelum diskon
+
+            // Pastikan total cost yang sudah terpotong diskon dikirim saat submit
+            $('#total_cost_input').val(totalBayar < 0 ? 0 : totalBayar); // Update input hidden dengan total yang terpotong diskon
+        }
+
+        $('#input_payment').on('input', function() {
+            var inputBayar = $(this).val().replace(/[^\d]/g, '');
+            $(this).val(formatRupiah(inputBayar));
+            hitungKembalian();
+            tampilkanInfoPembayaranKurang();
+        });
+
+        function tampilkanInfoPembayaranKurang() {
+            var totalBayar = parseInt($('#total_cost').text().replace(/[^0-9]/g, ''));
+            var inputBayar = parseInt($('#input_payment').val().replace(/\./g, '')) || 0;
+            if (inputBayar < totalBayar) {
+                $('#info_payment').text('Bayar masih kurang');
+            } else {
+                $('#info_payment').text('');
+            }
+        }
+
+        function hitungKembalian() {
+            var totalBayar = parseInt($('#total_cost').text().replace(/[^0-9]/g, ''));
+            var inputBayar = parseInt($('#input_payment').val().replace(/\./g, '')) || 0;
+            var return_payment = totalBayar - inputBayar;
+            $('#return_payment').val(formatRupiah(return_payment));
+        }
 
 
 
@@ -644,8 +777,23 @@
             var cashId = $('#cash_id').val();
             var typePayment = $('#type_payment').val(); // Ambil nilai type_payment
 
-            // Ambil nilai amount dari cash_id yang dipilih
-            var cashAmount = $('#cash_id option:selected').data('amount');
+            // Ambil nilai total bayar dan input pembayaran, hilangkan separator, lalu ubah menjadi angka
+            var totalCost = parseFloat($('#total_cost').text().replace(/[^0-9]/g, '')) || 0; // Mengambil teks, hanya angka
+            var inputPayment = parseFloat($('#input_payment').val().replace(/[^0-9]/g, '')) || 0; // Mengambil input, hanya angka
+
+            // Validasi jika jumlah pembayaran kurang dari total biaya
+            if (inputPayment < totalCost) {
+                Swal.fire({
+                    title: 'Kurang Bayar!',
+                    text: 'Jumlah pembayaran tidak boleh kurang dari total biaya.',
+                    icon: 'warning',
+                    confirmButtonText: 'OK'
+                }).then(() => {
+                    tombolSave.prop('disabled', false); // Mengaktifkan kembali tombol
+                    iconSave.removeClass('fas fa-spinner fa-spin').addClass('fas fa-save'); // Kembalikan ikon semula
+                });
+                return; // Hentikan proses submit jika validasi gagal
+            }
 
             // Validasi jika status "Lunas" dan customer_id kosong
             if ((status === 'Lunas') && !customerId) {
@@ -688,7 +836,6 @@
                 });
                 return; // Hentikan proses submit jika validasi gagal
             }
-
 
             const formData = new FormData(this); // Ambil data formulir
 

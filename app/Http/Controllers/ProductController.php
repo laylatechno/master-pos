@@ -15,6 +15,8 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 
+use Picqer\Barcode\BarcodeGeneratorHTML;
+
 class ProductController extends Controller
 {
     /**
@@ -70,12 +72,12 @@ class ProductController extends Controller
     {
         $productId = $request->product_id;
         $customerCategoryId = $request->customer_category_id;
-    
+
         // Ambil harga berdasarkan kategori pelanggan
         $productPrice = ProductPrice::where('product_id', $productId)
             ->where('customer_category_id', $customerCategoryId)
             ->first();
-    
+
         if ($productPrice) {
             return response()->json([
                 'price' => $productPrice->price
@@ -88,7 +90,47 @@ class ProductController extends Controller
             ]);
         }
     }
-    
+
+
+
+    public function generateBarcode(Request $request)
+    {
+        $title = "Halaman Barcode Produk";
+        $subtitle = "Menu Barcode Produk";
+        $ids = explode(',', $request->input('selected_ids'));
+        $products = Product::whereIn('id', $ids)->get();
+
+        $barcodeGenerator = new BarcodeGeneratorHTML();
+
+
+        // Menyimpan barcode ke field 'barcode' di tabel produk
+        foreach ($products as $product) {
+            // Misalnya Anda ingin menggunakan 'code_product' sebagai barcode
+            $barcode = $product->code_product;
+
+            // Simpan barcode ke field di database
+            $product->barcode = $barcode;
+            $product->save();
+        }
+
+        return view('product.barcodes', compact('products', 'barcodeGenerator', 'title', 'subtitle'));
+    }
+
+    public function getProductByBarcode(Request $request)
+    {
+        $barcode = $request->input('barcode');
+
+        // Cari produk berdasarkan barcode
+        $product = Product::where('barcode', $barcode)->first();
+
+        if ($product) {
+            return response()->json(['product' => $product]);
+        }
+
+        return response()->json(['message' => 'Produk tidak ditemukan'], 404);
+    }
+
+
 
     /**
      * Show the form for creating a new resource.

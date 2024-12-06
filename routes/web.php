@@ -1,4 +1,5 @@
 <?php
+use App\Http\Controllers\GaleriesController;
 use App\Http\Controllers\CashController;
 use App\Http\Controllers\PurchaseController;
 use App\Http\Controllers\CategoryController;
@@ -33,6 +34,8 @@ Route::get('/', function () {
 Route::get('/home', [HomeController::class, 'index'])->name('home');
 
 Route::group(['middleware' => ['auth']], function () {
+    Route::resource('galeries', GaleriesController::class);
+
     Route::resource('transactions', TransactionController::class);
     Route::resource('transaction_categories', TransactionCategoryController::class);
     Route::resource('cash', CashController::class);
@@ -47,6 +50,11 @@ Route::group(['middleware' => ['auth']], function () {
     Route::resource('units', UnitController::class);
     Route::resource('products', ProductController::class);
     Route::get('/get-product-price', [ProductController::class, 'getProductPrice']);
+    Route::post('/products/generate-barcode', [ProductController::class, 'generateBarcode'])->name('products.generate_barcode');
+    Route::get('/get-product-by-barcode', [ProductController::class, 'getProductByBarcode']);
+
+    
+
     Route::resource('categories', CategoryController::class);
     Route::resource('routes', RouteController::class);
     Route::get('/generate-routes', [RouteController::class, 'generateRoutes'])->name('routes.generate');

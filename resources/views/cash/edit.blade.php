@@ -55,8 +55,17 @@
                                     </div>
                                     <div class="form-group mb-3">
                                         <label for="amount">Saldo</label>
-                                        <input type="number" name="amount" class="form-control" value="{{ $data_cashs->amount }}" id="amount">
+                                        <input type="text" name="amount" class="form-control" value="{{ $data_cashs->amount }}" id="amount"  oninput="formatPrice(this)">
                                     </div>
+                                    <script>
+                                        function formatPrice(input) {
+                                            let value = input.value.replace(/[^0-9.]/g, '');
+                                            let parts = value.split('.');
+                                            if (parts.length > 2) parts = [parts[0], parts[1]];
+                                            parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+                                            input.value = parts.join('.');
+                                        }
+                                    </script>
                                     <div class="col-xs-12 col-sm-12 col-md-12 mt-3">
                                         <button type="submit" class="btn btn-primary btn-sm mb-3"><i class="fa fa-save"></i> Simpan</button>
                                         <a class="btn btn-warning btn-sm mb-3" href="{{ route('cash.index') }}"><i class="fa fa-undo"></i> Kembali</a>
@@ -64,7 +73,7 @@
                                 </div>
 
 
-                                
+
                             </form>
                         </div>
                     </div>

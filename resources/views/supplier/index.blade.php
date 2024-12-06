@@ -65,8 +65,8 @@
                                     <tr>
                                         <td>{{ $loop->iteration }}</td>
                                         <td>{{ $p->name }}</td>
-                                        <td>{{ $p->email }}</td>
-                                        <td>{{ $p->phone }}</td>
+                                        <td>{{ $p->email ? : 'No Data' }}</td>
+                                        <td>{{ $p->phone ? : 'No Data' }}</td>
                                         <td>{{ $p->address ? substr($p->address, 0, 10) : 'No Data' }}</td>
 
 

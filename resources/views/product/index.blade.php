@@ -38,12 +38,38 @@
                                     @can('product-create')
                                     <div class="pull-right">
                                         <a class="btn btn-success mb-2" href="{{ route('products.create') }}"><i class="fa fa-plus"></i> Tambah Data</a>
+                                        <button class="btn btn-info mb-2" id="generate-barcode-btn" onclick="submitGenerateBarcodeForm()">
+                                            <i class="fa fa-barcode"></i> Generate Barcode
+                                        </button>
                                     </div>
+
                                     @endcan
+
                                 </div>
                             </div>
 
-                            
+                            <form id="generate-barcode-form" action="{{ route('products.generate_barcode') }}" method="POST" style="display: none;">
+                                @csrf
+                                <input type="hidden" name="selected_ids" id="selected_ids">
+                            </form>
+                            <script>
+                                function submitGenerateBarcodeForm() {
+                                    let selected = [];
+                                    document.querySelectorAll('.row-checkbox:checked').forEach(checkbox => {
+                                        selected.push(checkbox.value);
+                                    });
+
+                                    if (selected.length === 0) {
+                                        alert('Pilih setidaknya satu produk untuk generate barcode.');
+                                        return;
+                                    }
+
+                                    document.getElementById('selected_ids').value = selected.join(',');
+                                    document.getElementById('generate-barcode-form').submit();
+                                }
+                            </script>
+
+
                             @if(session('success'))
                             <div class="alert alert-success">{{ session('success') }}</div>
                             @endif
@@ -53,14 +79,25 @@
                             </div>
                             @endif
 
-                            
-                            <table id="scroll_hor"
-                                class="table border table-striped table-bordered display nowrap"
-                                style="width: 100%">
+                            <script>
+                                function toggleCheckboxes(source) {
+                                    let checkboxes = document.querySelectorAll('.row-checkbox');
+                                    checkboxes.forEach(checkbox => {
+                                        checkbox.checked = source.checked;
+                                    });
+                                }
+                            </script>
+
+                            <table id="scroll_hor" class="table border table-striped table-bordered display nowrap" style="width: 100%">
                                 <thead>
                                     <tr>
-                                        <th width="5px">No</th>
+                                        <th width="5px">
+                                            <input type="checkbox" id="check_all" onclick="toggleCheckboxes(this)">
+                                        </th>
+                                        <th>No</th>
                                         <th>Nama</th>
+                                        <th>Kode Produk</th>
+                                        <th>Barcode</th>
                                         <th>Deskripsi</th>
                                         <th>Harga Beli</th>
                                         <th>Harga Jual</th>
@@ -72,19 +109,26 @@
                                 <tbody>
                                     @foreach ($data_products as $p)
                                     <tr>
+                                        <td>
+                                            <input type="checkbox" class="row-checkbox" value="{{ $p->id }}">
+                                        </td>
                                         <td>{{ $loop->iteration }}</td>
                                         <td>{{ $p->name }}</td>
+                                        <td>{{ $p->code_product }}</td>
+                                        <td>
+                                            {!! !empty($p->barcode) ? \App\Helpers\BarcodeHelper::generateBarcode($p->barcode) : '<span>No Data</span>' !!}
+                                        </td>
+
+
                                         <td>{{ $p->description ?: 'No Data' }}</td>
                                         <td>Rp {{ number_format($p->purchase_price, 0, ',', '.') }}</td>
                                         <td>Rp {{ number_format($p->cost_price, 0, ',', '.') }}</td>
                                         <td>{{ $p->stock }}</td>
                                         <td>
                                             <a href="/upload/products/{{ $p->image }}" target="_blank">
-                                                <img style="max-width:100px; max-height:100px"
-                                                    src="/upload/products/{{ $p->image }}" alt="">
+                                                <img style="max-width:100px; max-height:100px" src="/upload/products/{{ $p->image }}" alt="">
                                             </a>
                                         </td>
-
                                         <td>
                                             <a class="btn btn-warning btn-sm" href="{{ route('products.show', $p->id) }}"><i class="fa fa-eye"></i> Show</a>
                                             @can('product-edit')
@@ -103,6 +147,7 @@
                                 </tbody>
                             </table>
                         </div>
+
                     </div>
                 </div>
             </div>
@@ -112,6 +157,8 @@
 @endsection
 
 @push('script')
+
+
 <script>
     function confirmDelete(roleId) {
         Swal.fire({

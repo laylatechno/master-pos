@@ -107,14 +107,20 @@
                         </div>
                         @endif
 
+
+                        <div class="col-md-12 mb-3 mt-3">
+                            <div class="form-group">
+                                <input type="text" class="form-control" id="barcode" name="barcode" placeholder="Scan barcode produk" autofocus>
+                            </div>
+                        </div>
+
+                        <hr>
+
                         <form id="form-order" action="{{ route('orders.store') }}" method="post" enctype="multipart/form-data">
 
                             @csrf
-                            <h5 class="card-title mb-0"><b style="color: blue;">Kode Penjualan : <input type="hidden"
-                                        id="no_order" name="no_order"
-                                        value="{{ $no_order }}">{{ $no_order }}</input></b></h5>
-
-                            <br>
+                            <h5 class="card-title mb-0"><b style="color: blue;">Kode Penjualan :
+                                    <input type="hidden" id="no_order" name="no_order" value="{{ $no_order }}">{{ $no_order }}</input></b></h5>
                             <hr>
                             <div class="form-group mb-3 col-md-6">
                                 <label for="status" class="mb-2"> Status Transaksi : </label><br>
@@ -167,13 +173,13 @@
                                             @foreach ($data_products as $produkItem)
                                             <option value="{{ $produkItem->id }}"
                                                 data-order-price="{{ $produkItem->cost_price }}"
-                                                data-stock="{{ $produkItem->stock }}"> <!-- Menambahkan data stok -->
+                                                data-stock="{{ $produkItem->stock }}"
+                                                data-barcode="{{ $produkItem->barcode }}">
                                                 {{ $produkItem->name }}
                                             </option>
-
                                             @endforeach
-
                                         </select>
+
                                     </div>
                                 </div>
 
@@ -191,6 +197,7 @@
                                         </select>
                                     </div>
                                 </div>
+
                                 <div class="product-list">
                                     @foreach ($data_products as $produkItem)
                                     <div class="product-item" data-id="{{ $produkItem->id }}"
@@ -206,18 +213,7 @@
 
 
 
-
-
-
                             </div>
-
-
-
-
-
-
-
-
 
 
 
@@ -243,12 +239,23 @@
                                 <div class="col-md-6 mb-3">
                                     <h5 style="color: red; font-size:30px;" class="badge badge-danger"><b>Total
                                             Bayar: </b> <span id="total_cost">0</span></h5>
-                                    <input type="hidden" name="total_cost" id="" class="form-control total_cost">
+                                    <input type="hidden" name="total_cost" class="form-control total_cost">
+                                    <input type="hidden" name="total_cost_before" id="total_cost_before" class="form-control total_cost_before">
                                     <hr>
                                     <h1 style="color: red" id="info_payment"></h1>
                                 </div>
 
+
                                 <div class="col-md-6 mb-3">
+                                    <div class="form-group">
+                                        <label for="percent_discount">Diskon (%):</label>
+                                        <input type="number" class="form-control" id="percent_discount" name="percent_discount" min="0" max="100" value="0">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="amount_discount">Diskon (Jumlah):</label>
+                                        <input type="text" class="form-control" id="amount_discount" name="amount_discount" value="0">
+                                    </div>
+
                                     <div class="form-group">
                                         <label for="input_payment">Bayar:</label>
                                         <input type="text" class="form-control" id="input_payment" name="input_payment">
@@ -415,6 +422,62 @@
             $('#name').val(selectedCustomerCategoryId);
         });
 
+        $('#barcode').on('change', function() {
+            var scannedBarcode = $(this).val();
+            var customerCategoryId = $('#name').val(); // Ambil kategori customer
+
+            if (scannedBarcode) {
+                $.ajax({
+                    url: '/get-product-by-barcode', // Endpoint untuk mencari produk berdasarkan barcode
+                    method: 'GET',
+                    data: {
+                        barcode: scannedBarcode
+                    },
+                    success: function(response) {
+                        if (response && response.product) {
+                            var product = response.product;
+                            var productId = product.id;
+                            var productName = product.name;
+                            var productStock = product.stock;
+                            var productPrice = product.cost_price; // Default price
+
+                            // Cek apakah ada kategori customer
+                            if (customerCategoryId) {
+                                $.ajax({
+                                    url: '/get-product-price',
+                                    method: 'GET',
+                                    data: {
+                                        product_id: productId,
+                                        customer_category_id: customerCategoryId
+                                    },
+                                    success: function(priceResponse) {
+                                        if (priceResponse && priceResponse.price) {
+                                            productPrice = priceResponse.price; // Update harga sesuai kategori customer
+                                        }
+                                        updateCartRow(productId, productName, productStock, productPrice);
+                                        $('#barcode').val(''); // Kosongkan input barcode setelah berhasil
+                                    },
+                                    error: function() {
+                                        alert("Gagal mendapatkan harga berdasarkan kategori customer.");
+                                    }
+                                });
+                            } else {
+                                updateCartRow(productId, productName, productStock, productPrice);
+                                $('#barcode').val(''); // Kosongkan input barcode setelah berhasil
+                            }
+                        } else {
+                            alert("Produk dengan barcode tersebut tidak ditemukan!");
+                        }
+                    },
+                    error: function() {
+                        alert("Terjadi kesalahan saat mencari produk.");
+                    }
+                });
+            }
+        });
+
+
+
         $('.product-item').on('click', function() {
             var selectedProductId = $(this).data('id');
             var selectedProductName = $(this).data('name');
@@ -448,58 +511,75 @@
                 updateCartRow(selectedProductId, selectedProductName, selectedProductStock, selectedProductPrice);
             }
         });
-
+        // Event listener ketika dropdown produk berubah
         $('#product_id').on('change', function() {
+            // Ambil nilai dari option yang dipilih
             var selectedProductId = $(this).val();
             var selectedProductName = $('#product_id option:selected').text();
             var selectedProductStock = $('#product_id option:selected').data('stock');
             var selectedProductPrice = $('#product_id option:selected').data('order-price');
+            var customerCategoryId = $('#name').val(); // Ambil ID kategori pelanggan
 
-            var customerCategoryId = $('#name').val();
+            // Debugging untuk memastikan nilai diambil dengan benar
+            console.log("Selected Product ID:", selectedProductId);
+            console.log("Selected Product Name:", selectedProductName);
+            console.log("Selected Product Stock:", selectedProductStock);
+            console.log("Selected Product Price:", selectedProductPrice);
+
+            // Validasi nilai stok
+            if (isNaN(selectedProductStock)) {
+                console.error("Stock is not valid:", selectedProductStock);
+                selectedProductStock = 0; // Set nilai default jika tidak valid
+            }
 
             if (customerCategoryId) {
+                // Jika ada kategori pelanggan, ambil harga dari server
                 $.ajax({
-                    url: '/get-product-price',
+                    url: '/get-product-price', // Endpoint untuk mengambil harga
                     method: 'GET',
                     data: {
                         product_id: selectedProductId,
                         customer_category_id: customerCategoryId
                     },
                     success: function(response) {
-                        console.log("Response:", response); // Cek seluruh respons
+                        console.log("Response from server:", response); // Debug response dari server
+
                         if (response && response.price) {
-                            selectedProductPrice = response.price;
+                            selectedProductPrice = response.price; // Update harga dari server
                         } else {
                             console.log("Price is missing in response");
                         }
+
+                        // Update row di tabel
                         updateCartRow(selectedProductId, selectedProductName, selectedProductStock, selectedProductPrice);
                     },
                     error: function() {
-                        console.log("Error fetching price from server");
+                        console.error("Error fetching price from server");
                     }
                 });
-
-
             } else {
+                // Jika tidak ada kategori pelanggan, langsung update tabel
                 updateCartRow(selectedProductId, selectedProductName, selectedProductStock, selectedProductPrice);
             }
         });
 
+        // Fungsi untuk menambahkan atau memperbarui baris di tabel
         function updateCartRow(productId, productName, productStock, productPrice) {
-            // Cek nilai productPrice sebelum digunakan
-            console.log("Product ID:", productId, "Product Price:", productPrice);
+            console.log("Updating cart row with:", productId, productName, productStock, productPrice);
 
-            // Pastikan productPrice adalah angka sebelum diformat
+            // Pastikan harga adalah angka sebelum diformat
             if (isNaN(productPrice)) {
-                console.error("Product Price is not a valid number:", productPrice);
-                productPrice = 0; // Jika tidak valid, set ke 0
+                console.error("Product Price is not valid:", productPrice);
+                productPrice = 0; // Set ke default jika tidak valid
             }
 
+            // Cek apakah produk sudah ada di tabel
             var existingProductRow = $('#scroll_hor tbody tr').filter(function() {
                 return $(this).find('input[name="product_id[]"]').val() == productId;
             });
 
             if (existingProductRow.length > 0) {
+                // Jika sudah ada, tambahkan jumlahnya
                 var quantityInput = existingProductRow.find('.quantity');
                 var currentQty = parseInt(quantityInput.val());
                 if (currentQty < productStock) {
@@ -508,34 +588,47 @@
                     alert("Stok produk sudah habis!");
                 }
             } else {
-                var newRow = '<tr>' +
-                    '<td></td>' +
-                    '<td style="text-align:left;">' +
-                    '<input type="hidden" name="product_id[]" value="' + productId + '">' +
-                    '<label>' + productName + '</label></td>' +
-                    '<td><input type="text" class="form-control cost_price" name="cost_price[]" value="' +
-                    formatRupiah(productPrice) + '"></td>' +
-                    '<td><input type="text" class="form-control stock" name="stock[]" value="' +
-                    productStock + '" readonly></td>' +
-                    '<td><input type="number" class="form-control quantity" name="quantity[]" value="1" max="' + productStock + '"></td>' +
-                    '<td><input type="text" class="form-control total" name="total[]" readonly></td>' +
-                    '<td><button type="button" class="btn btn-danger btn-sm btn-remove-product"><i class="fas fa-trash"></i></button></td>' +
-                    '</tr>';
+                // Jika belum ada, tambahkan baris baru
+                var newRow = `
+            <tr>
+                <td></td>
+                <td style="text-align:left;">
+                    <input type="hidden" name="product_id[]" value="${productId}">
+                    <label>${productName}</label>
+                </td>
+                <td>
+                    <input type="text" class="form-control cost_price" name="cost_price[]" value="${formatRupiah(productPrice)}">
+                </td>
+                <td>
+                    <input type="text" class="form-control stock" name="stock[]" value="${productStock}" readonly>
+                </td>
+                <td>
+                    <input type="number" class="form-control quantity" name="quantity[]" value="1" max="${productStock}">
+                </td>
+                <td>
+                    <input type="text" class="form-control total" name="total[]" readonly>
+                </td>
+                <td>
+                    <button type="button" class="btn btn-danger btn-sm btn-remove-product"><i class="fas fa-trash"></i></button>
+                </td>
+            </tr>`;
 
                 $('#scroll_hor tbody').append(newRow);
             }
 
+            // Perbarui nomor baris dan total
             updateRowNumbers();
             calculateTotal();
         }
 
-
+        // Fungsi untuk memperbarui nomor urut baris di tabel
         function updateRowNumbers() {
             $('#scroll_hor tbody tr').each(function(index, row) {
                 $(row).find('td:first').text(index + 1);
             });
         }
 
+        // Fungsi untuk menghitung total harga di tabel
         function calculateTotal() {
             var totalBayar = 0;
             $('#scroll_hor tbody tr').each(function() {
@@ -545,9 +638,31 @@
                 $(this).find('.total').val(formatRupiah(total));
                 totalBayar += total;
             });
-            $('#total_cost').text(formatRupiah(totalBayar));
-            $('.total_cost').val(formatRupiah(totalBayar));
+
+            // Set nilai total_cost_before sebelum diskon
+            $('#total_cost_before').val(totalBayar);
+
+            // Hitung diskon
+            var discountPercent = parseFloat($('#percent_discount').val()) || 0;
+            var discountAmount = parseInt($('#amount_discount').val().replace(/\./g, '').replace(/[^0-9]/g, '')) || 0;
+
+            var discountFromPercent = totalBayar * (discountPercent / 100);
+            var totalAfterDiscount = totalBayar - discountFromPercent - discountAmount;
+
+            // Update total bayar
+            $('#total_cost').text(formatRupiah(totalAfterDiscount));
+            $('.total_cost').val(totalAfterDiscount < 0 ? 0 : totalAfterDiscount);
         }
+
+
+
+        $(document).on('input', '.quantity, .cost_price, #percent_discount, #amount_discount', function() {
+            if ($(this).attr('id') === 'amount_discount') {
+                $(this).val(formatRupiah($(this).val().replace(/\./g, '')));
+            }
+            calculateTotal();
+        });
+
 
         $(document).on('input', '.quantity', function() {
             calculateTotal();
@@ -560,6 +675,7 @@
 
         $(document).on('click', '.btn-remove-product', function() {
             $(this).closest('tr').remove();
+            calculateTotal();
             updateRowNumbers();
         });
 
@@ -601,14 +717,13 @@
             iconSimpan.removeClass('fas fa-save').addClass('fas fa-spinner fa-spin');
             tombolSimpan.prop('disabled', true); // Menonaktifkan tombol agar tidak bisa diklik dua kali
 
-            // Ambil nilai status, customer_id, cash_id, dan type_payment
+            // Ambil nilai status, customer_id, cash_id, type_payment, input_payment, dan total_cost
             var status = $('input[name="status"]:checked').val();
             var customerId = $('#customer_id').val();
             var cashId = $('#cash_id').val();
-            var typePayment = $('#type_payment').val(); // Ambil nilai type_payment
-
-            // Ambil nilai amount dari cash_id yang dipilih
-            var cashAmount = $('#cash_id option:selected').data('amount');
+            var typePayment = $('#type_payment').val();
+            var inputPayment = parseFloat($('#input_payment').val()) || 0; // Ambil nilai input_payment (pastikan dalam bentuk angka)
+            var totalCost = parseFloat($('#total_cost').val()) || 0; // Ambil nilai total_cost (pastikan dalam bentuk angka)
 
             // Validasi jika status "Lunas" dan customer_id kosong
             if ((status === 'Lunas') && !customerId) {
@@ -618,10 +733,10 @@
                     icon: 'error',
                     confirmButtonText: 'OK'
                 }).then(() => {
-                    tombolSimpan.prop('disabled', false); // Mengaktifkan kembali tombol
-                    iconSimpan.removeClass('fas fa-spinner fa-spin').addClass('fas fa-save'); // Kembalikan ikon semula
+                    tombolSimpan.prop('disabled', false);
+                    iconSimpan.removeClass('fas fa-spinner fa-spin').addClass('fas fa-save');
                 });
-                return; // Hentikan proses submit jika validasi gagal
+                return;
             }
 
             // Validasi jika cash_id kosong untuk status "Lunas"
@@ -632,10 +747,10 @@
                     icon: 'error',
                     confirmButtonText: 'OK'
                 }).then(() => {
-                    tombolSimpan.prop('disabled', false); // Mengaktifkan kembali tombol
-                    iconSimpan.removeClass('fas fa-spinner fa-spin').addClass('fas fa-save'); // Kembalikan ikon semula
+                    tombolSimpan.prop('disabled', false);
+                    iconSimpan.removeClass('fas fa-spinner fa-spin').addClass('fas fa-save');
                 });
-                return; // Hentikan proses submit jika validasi gagal
+                return;
             }
 
             // Validasi jika type_payment kosong untuk status "Lunas"
@@ -646,11 +761,30 @@
                     icon: 'error',
                     confirmButtonText: 'OK'
                 }).then(() => {
-                    tombolSimpan.prop('disabled', false); // Mengaktifkan kembali tombol
-                    iconSimpan.removeClass('fas fa-spinner fa-spin').addClass('fas fa-save'); // Kembalikan ikon semula
+                    tombolSimpan.prop('disabled', false);
+                    iconSimpan.removeClass('fas fa-spinner fa-spin').addClass('fas fa-save');
                 });
-                return; // Hentikan proses submit jika validasi gagal
+                return;
             }
+
+            // Ambil nilai total bayar dan input pembayaran, hilangkan separator, lalu ubah menjadi angka
+            var totalCost = parseFloat($('#total_cost').text().replace(/[^0-9]/g, '')) || 0; // Mengambil teks, hanya angka
+            var inputPayment = parseFloat($('#input_payment').val().replace(/[^0-9]/g, '')) || 0; // Mengambil input, hanya angka
+
+            // Validasi jika jumlah pembayaran kurang dari total biaya
+            if (status === 'Lunas' && inputPayment < totalCost) {
+                Swal.fire({
+                    title: 'Kurang Bayar!',
+                    text: 'Jumlah pembayaran lebih kecil dari total biaya.',
+                    icon: 'warning',
+                    confirmButtonText: 'OK'
+                }).then(() => {
+                    tombolSimpan.prop('disabled', false);
+                    iconSimpan.removeClass('fas fa-spinner fa-spin').addClass('fas fa-save');
+                });
+                return;
+            }
+
 
             // Jika semua validasi lolos, lanjutkan ke pengiriman data dengan AJAX
             var formData = new FormData(this); // Menggunakan FormData untuk mengambil data formulir
@@ -678,8 +812,8 @@
                         icon: 'error',
                         confirmButtonText: 'OK'
                     }).then(() => {
-                        tombolSimpan.prop('disabled', false); // Mengaktifkan kembali tombol
-                        iconSimpan.removeClass('fas fa-spinner fa-spin').addClass('fas fa-save'); // Kembalikan ikon semula
+                        tombolSimpan.prop('disabled', false);
+                        iconSimpan.removeClass('fas fa-spinner fa-spin').addClass('fas fa-save');
                     });
                     console.error(error);
                 }
@@ -687,7 +821,6 @@
         });
     });
 </script>
-
 
 
 
