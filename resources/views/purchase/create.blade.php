@@ -40,8 +40,62 @@
         </div>
     </div>
 
+
+
+    <div class="card-body">
+        <!-- Section Tutorial -->
+        <div class="card mb-1" id="tutorial-section">
+            <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
+                <h5 class="card-title mb-0" style="color: white;">Cara Menggunakan Halaman Pembelian</h5>
+                <!-- Tombol Close -->
+                <button type="button" class="btn-close btn-close-white" aria-label="Close" onclick="closeTutorial()"></button>
+            </div>
+            <div class="card-body">
+                <ol>
+                    <li>
+                        Tentukan status transaksi, jika akan melakukan Purchase Order atau pesanan pembelian maka pilih status transaksi Pesanan Pembelian, lalu jika sudah terjadi pembelian di supplier, maka sesuaikan/edit dengan item pembelian yang real. 
+                    </li>
+                    <li>
+                        Untuk transaksi pembelian yang <b>sudah diterima barang dan sudah diselesaikan pembayaran</b>, maka pilih status transaksi Lunas.  
+                    </li>
+                    <li>
+                        Sisa transaksi diluar Pesanan Pembelian dan Lunas silahkan pilih antara <b>Belum Lunas dan Pending</b>    
+                    </li>
+                    <li>
+                        Jika Status Transaksi <b>Lunas</b>, maka Supplier, Kas dan Jenis Pembayaran <b>Wajib Diisi</b> sehingga transaksi tersebut akan mengurangi Kas serta menambah Kuantiti Produk yang dipilih    
+                    </li>
+                    <li>
+                        Pilih <b>Supplier</b> dari dropdown yang tersedia untuk menentukan dari mana barang dibeli. Untuk Supplier yang sifatnya tentatif bisa memilih <b>Supplier Umum</b>
+                    </li>
+                    <li>
+                        Cari dan pilih <b>Produk</b> yang ingin dibeli, lalu masukkan jumlah (Qty).
+                    </li>
+                    <li>
+                        Pilih metode <b>Jenis Pembayaran</b>, apakah <b>CASH</b> atau <b>TRANSFER</b>.
+                    </li>
+                    <li>
+                        Jika pembayaran dilakukan dengan <b>TRANSFER</b>, unggah bukti pembayaran dengan memilih file gambar di bagian <b>Gambar</b> (Opsional).
+                    </li>
+                    <li>
+                        Setelah semua informasi lengkap, klik tombol <b>Simpan</b> untuk menyimpan data pembelian.
+                    </li>
+                </ol>
+                <p class="text-muted">
+                    Pastikan semua informasi telah diisi dengan benar sebelum menyimpan transaksi. Untuk membatalkan, Anda dapat menekan tombol <b>Kembali</b>.
+                </p>
+            </div>
+        </div>
+        <!-- End of Section Tutorial -->
+    </div>
+    <div class="card">
+        <button class="btn btn-primary" id="showTutorialBtn" onclick="toggleTutorial()">Lihat Informasi</button>
+    </div>
+
+
+
     <section class="datatables">
         <div class="row">
+
             <div class="col-12">
                 <div class="card">
                     <div class="card-body">
@@ -66,27 +120,28 @@
                             <br>
                             <hr>
                             <div class="form-group mb-3 col-md-6">
-                                        <label for="status" class="mb-2"> Status Transaksi : </label><br>
-                                        <label style="margin-right: 6px;">
-                                            <input type="radio" name="status" value="Pesanan Pembelian" checked> Pesanan Pembelian
-                                        </label>
-                                        <label style="margin-right: 6px;">
-                                            <input type="radio" name="status" value="Lunas"> Lunas
-                                        </label>
-                                        <label style="margin-right: 6px;">
-                                            <input type="radio" name="status" value="Belum Lunas"> Belum Lunas
-                                        </label>
-                                        <label style="margin-right: 6px;">
-                                            <input type="radio" name="status" value="Pending"> Pending
-                                        </label>
+                                <label for="status" class="mb-2"> Status Transaksi : </label><br>
+                                <label style="margin-right: 6px;" title="Pesanan Pembelian: Transaksi ini sedang dalam tahap pesanan awal. Barang atau jasa telah dipesan, namun pembayaran belum sepenuhnya dilakukan atau diselesaikan.">
+                                    <input type="radio" name="status" value="Pesanan Pembelian" checked> Pesanan Pembelian
+                                </label>
+                                <label style="margin-right: 6px;" title="Lunas: Semua pembayaran terkait transaksi ini telah diselesaikan. Tidak ada saldo atau kewajiban yang tersisa.">
+                                    <input type="radio" name="status" value="Lunas"> Lunas
+                                </label>
+                                <label style="margin-right: 6px;" title="Belum Lunas: Sebagian pembayaran telah dilakukan, tetapi masih ada sisa yang harus dilunasi.">
+                                    <input type="radio" name="status" value="Belum Lunas"> Belum Lunas
+                                </label>
+                                <label style="margin-right: 6px;" title="Pending: Transaksi ini sedang menunggu tindakan atau konfirmasi lebih lanjut. Belum ada keputusan final.">
+                                    <input type="radio" name="status" value="Pending"> Pending
+                                </label>
+                            </div>
 
-                                    </div>
+
 
                             <div class="row mb-3">
                                 <div class="col-md-6 mb-3">
                                     <div class="form-group">
                                         <label for="hari">Tanggal Pembelian </label>
-                                        <span class="text-danger">*</span>  
+                                        <span class="text-danger">*</span>
                                         <input type="date" class="form-control" id="purchase_date"
                                             name="purchase_date" value="<?php echo date('Y-m-d'); ?>" required>
                                     </div>
@@ -96,7 +151,7 @@
                                     <div class="form-group">
                                         <label for="supplier_id">Supplier </label>
                                         <select class="form-control" id="supplier_id" name="supplier_id">
-                                            <option value="" >--Pilih Supplier--</option>
+                                            <option value="">--Pilih Supplier--</option>
                                             @foreach ($data_suppliers as $supplierItem)
                                             <option value="{{ $supplierItem->id }}"
                                                 data-nama-supplier="{{ $supplierItem->name }}">
@@ -110,9 +165,9 @@
                                 <div class="col-md-6 mb-3">
                                     <div class="form-group">
                                         <label for="product_id">Cari Produk </label>
-                                        <span class="text-danger">*</span>  
+                                        <span class="text-danger">*</span>
                                         <select class="form-control" id="product_id" name="product_id" required>
-                                            <option value="" >--Pilih Produk--</option>
+                                            <option value="">--Pilih Produk--</option>
                                             @foreach ($data_products as $produkItem)
                                             <option value="{{ $produkItem->id }}"
                                                 data-purchase-price="{{ $produkItem->purchase_price }}">
@@ -127,7 +182,7 @@
                                     <div class="form-group">
                                         <label for="">Kas Pembayaran </label>
                                         <select name="cash_id" id="cash_id" class="form-control">
-                                            <option value="" >--Pilih Cash--</option>
+                                            <option value="">--Pilih Cash--</option>
                                             @foreach($data_cashes as $cash)
                                             <option value="{{ $cash->id }}" data-amount="{{ $cash->amount }} ">
                                                 {{ $cash->name }} - Rp{{ number_format($cash->amount, 0, ',', '.') }}
@@ -173,7 +228,7 @@
                                         <label for="return_payment">Kembalian:</label>
                                         <input type="text" class="form-control" id="return_payment" name="return_payment" readonly>
                                     </div>
-                                   
+
                                     <div class="form-group mb-3">
                                         <label for="type_payment">Jenis Pembayaran:</label>
                                         <select name="type_payment" id="type_payment" class="form-control">
@@ -250,6 +305,9 @@
                     </div>
                 </div>
             </div>
+
+
+
         </div>
     </section>
 </div>
@@ -260,8 +318,72 @@
 <script src="{{ asset('template/back') }}/dist/libs/select2/dist/js/select2.min.js"></script>
 <script src="{{ asset('template/back') }}/dist/js/forms/select2.init.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        // Ambil status tutorial dari server
+        fetch('/tutorial-status')
+            .then(response => response.json())
+            .then(data => {
+                if (data.tutorialClosed) {
+                    // Jika tutorial sudah ditutup, sembunyikan card dan tampilkan tombol "Munculkan Informasi"
+                    document.getElementById('tutorial-section').style.display = 'none';
+                    document.getElementById('showTutorialBtn').style.display = 'block';
+                } else {
+                    // Jika tutorial masih terbuka, tampilkan card tutorial
+                    document.getElementById('tutorial-section').style.display = 'block';
+                    document.getElementById('showTutorialBtn').style.display = 'none';
+                }
+            });
+    });
+
+    // Fungsi untuk menutup tutorial dan menyimpan statusnya
+    function closeTutorial() {
+        // Menyimpan status tutorial ke file JSON
+        fetch('/set-tutorial-status', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                },
+                body: JSON.stringify({
+                    tutorialClosed: true
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Sembunyikan card tutorial dan tampilkan tombol "Munculkan Informasi"
+                document.getElementById('tutorial-section').style.display = 'none';
+                document.getElementById('showTutorialBtn').style.display = 'block';
+            });
+    }
+
+    // Fungsi untuk menampilkan tutorial kembali
+    function toggleTutorial() {
+        // Menyimpan status tutorial ke file JSON
+        fetch('/set-tutorial-status', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                },
+                body: JSON.stringify({
+                    tutorialClosed: false
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Tampilkan card tutorial dan sembunyikan tombol
+                document.getElementById('tutorial-section').style.display = 'block';
+                document.getElementById('showTutorialBtn').style.display = 'none';
+            });
+    }
+</script>
+
+
 <script>
     $(document).ready(function() {
+
         const totalCostElement = document.getElementById('total_cost');
         const inputPaymentElement = $('#input_payment');
 
@@ -301,7 +423,7 @@
         // Menampilkan kode pembelian dalam elemen span dengan id "no_purchase"
         $('#no_purchase').text(no_purchase);
 
-       
+
 
         // Function to format harga rupiah with separator ribuan
         function formatRupiah(angka) {

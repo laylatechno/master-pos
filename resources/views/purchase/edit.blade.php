@@ -42,6 +42,58 @@
         </div>
     </div>
 
+    <div class="card-body">
+        <!-- Section Tutorial -->
+        <div class="card mb-1" id="tutorial-section">
+            <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
+                <h5 class="card-title mb-0" style="color: white;">Cara Menggunakan Halaman Pembelian</h5>
+                <!-- Tombol Close -->
+                <button type="button" class="btn-close btn-close-white" aria-label="Close" onclick="closeTutorial()"></button>
+            </div>
+            <div class="card-body">
+                <ol>
+                    <li>
+                        Tentukan status transaksi, jika akan melakukan Purchase Order atau pesanan pembelian maka pilih status transaksi Pesanan Pembelian, lalu jika sudah terjadi pembelian di supplier, maka sesuaikan/edit dengan item pembelian yang real. 
+                    </li>
+                    <li>
+                        Untuk transaksi pembelian yang <b>sudah diterima barang dan sudah diselesaikan pembayaran</b>, maka pilih status transaksi Lunas.  
+                    </li>
+                    <li>
+                        Sisa transaksi diluar Pesanan Pembelian dan Lunas silahkan pilih antara <b>Belum Lunas dan Pending</b>    
+                    </li>
+                    <li>
+                        Jika Status Transaksi <b>Lunas</b>, maka Supplier, Kas dan Jenis Pembayaran <b>Wajib Diisi</b> sehingga transaksi tersebut akan mengurangi Kas serta menambah Kuantiti Produk yang dipilih    
+                    </li>
+                    <li>
+                        Pilih <b>Supplier</b> dari dropdown yang tersedia untuk menentukan dari mana barang dibeli. Untuk Supplier yang sifatnya tentatif bisa memilih <b>Supplier Umum</b>
+                    </li>
+                    <li>
+                        Cari dan pilih <b>Produk</b> yang ingin dibeli, lalu masukkan jumlah (Qty).
+                    </li>
+                    <li>
+                        Pilih metode <b>Jenis Pembayaran</b>, apakah <b>CASH</b> atau <b>TRANSFER</b>.
+                    </li>
+                    <li>
+                        Jika pembayaran dilakukan dengan <b>TRANSFER</b>, unggah bukti pembayaran dengan memilih file gambar di bagian <b>Gambar</b> (Opsional).
+                    </li>
+                    <li>
+                        Setelah semua informasi lengkap, klik tombol <b>Simpan</b> untuk menyimpan data pembelian.
+                    </li>
+                </ol>
+                <p class="text-muted">
+                    Pastikan semua informasi telah diisi dengan benar sebelum menyimpan transaksi. Untuk membatalkan, Anda dapat menekan tombol <b>Kembali</b>.
+                </p>
+            </div>
+        </div>
+        <!-- End of Section Tutorial -->
+    </div>
+    <div class="card">
+        <button class="btn btn-primary" id="showTutorialBtn" onclick="toggleTutorial()">Lihat Informasi</button>
+    </div>
+
+
+
+
     <section class="datatables">
         <div class="row">
             <div class="col-12">
@@ -293,6 +345,68 @@
 <script src="{{ asset('template/back') }}/dist/libs/select2/dist/js/select2.full.min.js"></script>
 <script src="{{ asset('template/back') }}/dist/libs/select2/dist/js/select2.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        // Ambil status tutorial dari server
+        fetch('/tutorial-status')
+            .then(response => response.json())
+            .then(data => {
+                if (data.tutorialClosed) {
+                    // Jika tutorial sudah ditutup, sembunyikan card dan tampilkan tombol "Munculkan Informasi"
+                    document.getElementById('tutorial-section').style.display = 'none';
+                    document.getElementById('showTutorialBtn').style.display = 'block';
+                } else {
+                    // Jika tutorial masih terbuka, tampilkan card tutorial
+                    document.getElementById('tutorial-section').style.display = 'block';
+                    document.getElementById('showTutorialBtn').style.display = 'none';
+                }
+            });
+    });
+
+    // Fungsi untuk menutup tutorial dan menyimpan statusnya
+    function closeTutorial() {
+        // Menyimpan status tutorial ke file JSON
+        fetch('/set-tutorial-status', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                },
+                body: JSON.stringify({
+                    tutorialClosed: true
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Sembunyikan card tutorial dan tampilkan tombol "Munculkan Informasi"
+                document.getElementById('tutorial-section').style.display = 'none';
+                document.getElementById('showTutorialBtn').style.display = 'block';
+            });
+    }
+
+    // Fungsi untuk menampilkan tutorial kembali
+    function toggleTutorial() {
+        // Menyimpan status tutorial ke file JSON
+        fetch('/set-tutorial-status', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                },
+                body: JSON.stringify({
+                    tutorialClosed: false
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Tampilkan card tutorial dan sembunyikan tombol
+                document.getElementById('tutorial-section').style.display = 'block';
+                document.getElementById('showTutorialBtn').style.display = 'none';
+            });
+    }
+</script>
+
 
 <script>
     $(document).ready(function() {

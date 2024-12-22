@@ -1,6 +1,6 @@
 @extends('layouts.app')
 @push('css')
-<link rel="stylesheet" href="{{ asset('template/back') }}/dist/libs/datatables.net-bs5/css/dataTables.bootstrap5.min.css">
+
 @endpush
 
 @section('content')
@@ -12,7 +12,7 @@
                     <h4 class="fw-semibold mb-8">{{ $title }}</h4>
                     <nav aria-label="breadcrumb">
                         <ol class="breadcrumb">
-                            <li class="breadcrumb-item"><a class="text-muted text-decoration-none" href="/">Beranda</a></li>
+                            <li class="breadcrumb-item"><a class="text-muted text-decoration-none" href="/home">Beranda</a></li>
                             <li class="breadcrumb-item" aria-current="page">{{ $subtitle }}</li>
                         </ol>
                     </nav>
@@ -39,8 +39,6 @@
                                     <button type="submit" class="btn btn-primary">Generate Routes</button>
                                 </form>
                                 @endcan
-                                
-
                                 <!-- Menampilkan pesan sukses jika ada -->
                                 @if(session('success'))
                                 <div class="alert alert-success mt-3">
@@ -58,29 +56,5 @@
 @endsection
 
 @push('script')
-<script>
-    function confirmDelete(userId) {
-        Swal.fire({
-            title: 'Apakah Anda yakin?',
-            text: "Data yang dihapus tidak dapat dikembalikan!",
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#3085d6',
-            cancelButtonColor: '#d33',
-            confirmButtonText: 'Ya, hapus!',
-            cancelButtonText: 'Batal'
-        }).then((result) => {
-            if (result.isConfirmed) {
-                document.getElementById('delete-form-' + userId).submit();
-            }
-        });
-    }
-</script>
-
-
-
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
-<script src="{{ asset('template/back') }}/dist/libs/datatables.net/js/jquery.dataTables.min.js"></script>
-<script src="{{ asset('template/back') }}/dist/js/datatable/datatable-basic.init.js"></script>
+  
 @endpush

@@ -21,7 +21,7 @@
     <!-- Owl Carousel  -->
     <link rel="stylesheet" href="{{ asset('template/back') }}/dist/libs/owl.carousel/dist/assets/owl.carousel.min.css">
 
-    <link rel="stylesheet" href="{{ asset('template/back') }}/dist/libs/datatables.net-bs5/css/dataTables.bootstrap5.min.css">
+    <!-- <link rel="stylesheet" href="{{ asset('template/back') }}/dist/libs/datatables.net-bs5/css/dataTables.bootstrap5.min.css"> -->
 
     @stack('css')
 
@@ -68,7 +68,7 @@
                 <div class="brand-logo d-flex align-items-center justify-content-between">
                     <a href="/home" class="text-nowrap logo-img">
                         <img src="{{ asset('/upload/profil/' . $profil->logo) }}" class="dark-logo" alt="Logo-Dark" />
-                        <img src="{{ asset('/upload/profil/' . $profil->logo) }}" class="light-logo" alt="Logo-light" />
+                        <img src="{{ asset('/upload/profil/' . $profil->logo_dark) }}" class="light-logo" alt="Logo-light" />
                     </a>
                     <a href="javascript:void(0)"
                         class="sidebartoggler ms-auto text-decoration-none fs-5 d-block d-xl-none">
@@ -124,21 +124,15 @@
                         @endforeach
                     </ul>
                 </nav>
-
-
-
-
-
-
-
-
-
+ 
 
                 <div class="fixed-profile p-3 mx-4 mb-2 bg-secondary-subtle rounded mt-3">
                     <div class="hstack gap-3">
                         <div class="john-img">
-                            <img src="https://bootstrapdemos.adminmart.com/modernize/dist/assets/images/profile/user-1.jpg" class="rounded-circle" width="40" height="40"
-                                alt="modernize-img" />
+
+                            <img src="{{ Auth::user()->image ? asset('/upload/users/' . Auth::user()->image) : 'https://bootstrapdemos.adminmart.com/modernize/dist/assets/images/profile/user-1.jpg?format=1500w' }}"
+                                class="rounded-circle" width="40" height="40" alt="modernize-img" />
+
                         </div>
                         <div class="john-title">
                             <h6 class="mb-0 fs-4 fw-semibold">{{ explode(' ', Auth::user()->name)[0] }}</h6>
@@ -220,13 +214,11 @@
                                     <!-- ------------------------------- -->
                                     <!-- start language Dropdown -->
                                     <!-- ------------------------------- -->
-                                    <li class="nav-item nav-icon-hover-bg rounded-circle">
-                                        <a class="nav-link moon dark-layout" href="javascript:void(0)">
-                                            <i class="ti ti-moon moon"></i>
+                                    <li class="nav-item nav-icon-hover-bg rounded-circle" title="Menu Penjualan">
+                                        <a class="nav-link" href="{{ route('orders.create') }}">
+                                            <i class="fas fa-cart-plus"></i>
                                         </a>
-                                        <a class="nav-link sun light-layout" href="javascript:void(0)">
-                                            <i class="ti ti-sun sun"></i>
-                                        </a>
+                                       
                                     </li>
 
 
@@ -294,13 +286,13 @@
                                             aria-expanded="false">
                                             <div class="d-flex align-items-center">
                                                 <div class="user-profile-img">
-                                                    <img src="https://bootstrapdemos.adminmart.com/modernize/dist/assets/images/profile/user-1.jpg"
-                                                        class="rounded-circle" width="35" height="35"
-                                                        alt="modernize-img" />
+                                                    <img src="{{ Auth::user()->image ? asset('/upload/users/' . Auth::user()->image) : 'https://bootstrapdemos.adminmart.com/modernize/dist/assets/images/profile/user-1.jpg?format=1500w' }}"
+                                                        class="rounded-circle" width="40" height="40" alt="modernize-img" />
+
                                                 </div>
                                             </div>
                                         </a>
-                                        
+
                                         <div class="dropdown-menu content-dd dropdown-menu-end dropdown-menu-animate-up"
                                             aria-labelledby="drop1">
                                             <div class="profile-dropdown position-relative" data-simplebar>
@@ -308,9 +300,9 @@
                                                     <h5 class="mb-0 fs-5 fw-semibold">Profil Pengguna</h5>
                                                 </div>
                                                 <div class="d-flex align-items-center py-9 mx-7 border-bottom">
-                                                    <img src="https://bootstrapdemos.adminmart.com/modernize/dist/assets/images/profile/user-1.jpg"
-                                                        class="rounded-circle" width="80" height="80"
-                                                        alt="modernize-img" />
+                                                    <img src="{{ Auth::user()->image ? asset('/upload/users/' . Auth::user()->image) : 'https://bootstrapdemos.adminmart.com/modernize/dist/assets/images/profile/user-1.jpg?format=1500w' }}"
+                                                        class="rounded-circle" width="40" height="40" alt="modernize-img" />
+
                                                     <div class="ms-3">
                                                         <h5 class="mb-1 fs-3">{{ Auth::user()->name }}</h5>
                                                         <span class="mb-1 d-block">{{ Auth::user()->getRoleNames()->first() }}</span>
@@ -320,7 +312,7 @@
                                                     </div>
                                                 </div>
                                                 <div class="message-body">
-                                                    <a href="{{ asset('template/back') }}/../main/page-user-profile.html"
+                                                    <a href="{{ route('users.edit', Auth::user()->id) }}"
                                                         class="py-8 px-7 mt-8 d-flex align-items-center">
                                                         <span
                                                             class="d-flex align-items-center justify-content-center text-bg-light rounded-1 p-6">
@@ -367,32 +359,9 @@
                     <!-- End Vertical Layout Header -->
                     <!-- ---------------------------------- -->
 
-                    <!-- ------------------------------- -->
-                    <!-- apps Dropdown in Small screen -->
-                    <!-- ------------------------------- -->
+         
 
-
-
-
-
-
-
-                    <!--  Mobilenavbar -->
-                    <!-- <div class="offcanvas offcanvas-start" data-bs-scroll="true" tabindex="-1" id="mobilenavbar"
-                        aria-labelledby="offcanvasWithBothOptionsLabel">
-                        <nav class="sidebar-nav scroll-sidebar">
-                            <div class="offcanvas-header justify-content-between">
-                                <img src="https://bootstrapdemos.adminmart.com/modernize/dist/assets/images/logos/favicon.ico" alt="modernize-img" class="img-fluid" />
-                                <button type="button" class="btn-close" data-bs-dismiss="offcanvas"
-                                    aria-label="Close"></button>
-                            </div>
-                            <div class="offcanvas-body h-n80" data-simplebar="" data-simplebar>
-                                <ul id="sidebarnav">
-                                    
-                                </ul>
-                            </div>
-                        </nav>
-                    </div> -->
+ 
                 </div>
 
 
@@ -430,147 +399,164 @@
                     </h4>
                     <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
                 </div>
-                <div class="offcanvas-body h-n80" data-simplebar>
-                    <h6 class="fw-semibold fs-4 mb-2">Theme</h6>
+                <form id="updateProfilForm" action="{{ route('profil.update_setting', $profil->id) }}" method="POST" enctype="multipart/form-data">
+                    @csrf
+                    @method('PUT')
+                    <div class="offcanvas-body h-n80" data-simplebar>
+                        <h6 class="fw-semibold fs-4 mb-2">Tema</h6>
 
-                    <div class="d-flex flex-row gap-3 customizer-box" role="group">
-                        <input type="radio" class="btn-check light-layout" name="theme-layout" id="light-layout"
-                            autocomplete="off" />
-                        <label class="btn p-9 btn-outline-primary rounded-2" for="light-layout">
-                            <i class="icon ti ti-brightness-up fs-7 me-2"></i>Light
-                        </label>
-
-                        <input type="radio" class="btn-check dark-layout" name="theme-layout" id="dark-layout"
-                            autocomplete="off" />
-                        <label class="btn p-9 btn-outline-primary rounded-2" for="dark-layout">
-                            <i class="icon ti ti-moon fs-7 me-2"></i>Dark
-                        </label>
-                    </div>
-
-
-
-                    <h6 class="mt-5 fw-semibold fs-4 mb-2">Theme Colors</h6>
-
-                    <div class="d-flex flex-row flex-wrap gap-3 customizer-box color-pallete" role="group">
-                        <input type="radio" class="btn-check" name="color-theme-layout" id="Blue_Theme"
-                            autocomplete="off" />
-                        <label class="btn p-9 btn-outline-primary d-flex align-items-center justify-content-center"
-                            onclick="handleColorTheme('Blue_Theme')" for="Blue_Theme" data-bs-toggle="tooltip"
-                            data-bs-placement="top" data-bs-title="BLUE_THEME">
-                            <div
-                                class="color-box rounded-circle d-flex align-items-center justify-content-center skin-1">
-                                <i class="ti ti-check text-white d-flex icon fs-5"></i>
-                            </div>
-                        </label>
-
-                        <input type="radio" class="btn-check" name="color-theme-layout" id="Aqua_Theme"
-                            autocomplete="off" />
-                        <label class="btn p-9 btn-outline-primary d-flex align-items-center justify-content-center"
-                            onclick="handleColorTheme('Aqua_Theme')" for="Aqua_Theme" data-bs-toggle="tooltip"
-                            data-bs-placement="top" data-bs-title="AQUA_THEME">
-                            <div
-                                class="color-box rounded-circle d-flex align-items-center justify-content-center skin-2">
-                                <i class="ti ti-check text-white d-flex icon fs-5"></i>
-                            </div>
-                        </label>
-
-                        <input type="radio" class="btn-check" name="color-theme-layout" id="Purple_Theme"
-                            autocomplete="off" />
-                        <label class="btn p-9 btn-outline-primary d-flex align-items-center justify-content-center"
-                            onclick="handleColorTheme('Purple_Theme')" for="Purple_Theme" data-bs-toggle="tooltip"
-                            data-bs-placement="top" data-bs-title="PURPLE_THEME">
-                            <div
-                                class="color-box rounded-circle d-flex align-items-center justify-content-center skin-3">
-                                <i class="ti ti-check text-white d-flex icon fs-5"></i>
-                            </div>
-                        </label>
-
-                        <input type="radio" class="btn-check" name="color-theme-layout" id="green-theme-layout"
-                            autocomplete="off" />
-                        <label class="btn p-9 btn-outline-primary d-flex align-items-center justify-content-center"
-                            onclick="handleColorTheme('Green_Theme')" for="green-theme-layout" data-bs-toggle="tooltip"
-                            data-bs-placement="top" data-bs-title="GREEN_THEME">
-                            <div
-                                class="color-box rounded-circle d-flex align-items-center justify-content-center skin-4">
-                                <i class="ti ti-check text-white d-flex icon fs-5"></i>
-                            </div>
-                        </label>
-
-                        <input type="radio" class="btn-check" name="color-theme-layout" id="cyan-theme-layout"
-                            autocomplete="off" />
-                        <label class="btn p-9 btn-outline-primary d-flex align-items-center justify-content-center"
-                            onclick="handleColorTheme('Cyan_Theme')" for="cyan-theme-layout" data-bs-toggle="tooltip"
-                            data-bs-placement="top" data-bs-title="CYAN_THEME">
-                            <div
-                                class="color-box rounded-circle d-flex align-items-center justify-content-center skin-5">
-                                <i class="ti ti-check text-white d-flex icon fs-5"></i>
-                            </div>
-                        </label>
-
-                        <input type="radio" class="btn-check" name="color-theme-layout" id="orange-theme-layout"
-                            autocomplete="off" />
-                        <label class="btn p-9 btn-outline-primary d-flex align-items-center justify-content-center"
-                            onclick="handleColorTheme('Orange_Theme')" for="orange-theme-layout"
-                            data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="ORANGE_THEME">
-                            <div
-                                class="color-box rounded-circle d-flex align-items-center justify-content-center skin-6">
-                                <i class="ti ti-check text-white d-flex icon fs-5"></i>
-                            </div>
-                        </label>
-                    </div>
-
-
-
-                    <h6 class="mt-5 fw-semibold fs-4 mb-2">Container Option</h6>
-
-                    <div class="d-flex flex-row gap-3 customizer-box" role="group">
-                        <input type="radio" class="btn-check" name="layout" id="boxed-layout" autocomplete="off" />
-                        <label class="btn p-9 btn-outline-primary" for="boxed-layout">
-                            <i class="icon ti ti-layout-distribute-vertical fs-7 me-2"></i>Boxed
-                        </label>
-
-                        <input type="radio" class="btn-check" name="layout" id="full-layout" autocomplete="off" />
-                        <label class="btn p-9 btn-outline-primary" for="full-layout">
-                            <i class="icon ti ti-layout-distribute-horizontal fs-7 me-2"></i>Full
-                        </label>
-                    </div>
-
-                    <h6 class="fw-semibold fs-4 mb-2 mt-5">Sidebar Type</h6>
-                    <div class="d-flex flex-row gap-3 customizer-box" role="group">
-                        <a href="javascript:void(0)" class="fullsidebar">
-                            <input type="radio" class="btn-check" name="sidebar-type" id="full-sidebar"
-                                autocomplete="off" />
-                            <label class="btn p-9 btn-outline-primary" for="full-sidebar">
-                                <i class="icon ti ti-layout-sidebar-right fs-7 me-2"></i>Full
+                        <div class="d-flex flex-row gap-3 customizer-box" role="group">
+                            <input type="radio" class="btn-check light-layout" name="theme" id="light-layout" value="light" autocomplete="off" />
+                            <label class="btn p-9 btn-outline-primary rounded-2" for="light-layout">
+                                <i class="icon ti ti-brightness-up fs-7 me-2"></i>Light
                             </label>
-                        </a>
-                        <div>
-                            <input type="radio" class="btn-check " name="sidebar-type" id="mini-sidebar"
-                                autocomplete="off" />
-                            <label class="btn p-9 btn-outline-primary" for="mini-sidebar">
-                                <i class="icon ti ti-layout-sidebar fs-7 me-2"></i>Collapse
+
+                            <input type="radio" class="btn-check dark-layout" name="theme" id="dark-layout" value="dark" autocomplete="off" />
+                            <label class="btn p-9 btn-outline-primary rounded-2" for="dark-layout">
+                                <i class="icon ti ti-moon fs-7 me-2"></i>Dark
                             </label>
                         </div>
+
+
+                        <h6 class="mt-5 fw-semibold fs-4 mb-2">Theme Colors</h6>
+
+                        <div class="d-flex flex-row flex-wrap gap-3 customizer-box color-pallete" role="group">
+                            <input type="radio" class="btn-check" name="theme_color" id="Blue_Theme" value="Blue_Theme" autocomplete="off" />
+                            <label class="btn p-9 btn-outline-primary d-flex align-items-center justify-content-center"
+                                onclick="handleColorTheme('Blue_Theme')" for="Blue_Theme" data-bs-toggle="tooltip" data-bs-placement="top"
+                                data-bs-title="BLUE_THEME">
+                                <div
+                                    class="color-box rounded-circle d-flex align-items-center justify-content-center skin-1">
+                                    <i class="ti ti-check text-white d-flex icon fs-5"></i>
+                                </div>
+                            </label>
+
+                            <input type="radio" class="btn-check" name="theme_color" id="Aqua_Theme" value="Aqua_Theme" autocomplete="off" />
+                            <label class="btn p-9 btn-outline-primary d-flex align-items-center justify-content-center"
+                                onclick="handleColorTheme('Aqua_Theme')" for="Aqua_Theme" data-bs-toggle="tooltip" data-bs-placement="top"
+                                data-bs-title="AQUA_THEME">
+                                <div
+                                    class="color-box rounded-circle d-flex align-items-center justify-content-center skin-2">
+                                    <i class="ti ti-check text-white d-flex icon fs-5"></i>
+                                </div>
+                            </label>
+
+                            <input type="radio" class="btn-check" name="theme_color" id="Purple_Theme" value="Purple_Theme" autocomplete="off" />
+                            <label class="btn p-9 btn-outline-primary d-flex align-items-center justify-content-center"
+                                onclick="handleColorTheme('Purple_Theme')" for="Purple_Theme" data-bs-toggle="tooltip" data-bs-placement="top"
+                                data-bs-title="PURPLE_THEME">
+                                <div
+                                    class="color-box rounded-circle d-flex align-items-center justify-content-center skin-3">
+                                    <i class="ti ti-check text-white d-flex icon fs-5"></i>
+                                </div>
+                            </label>
+
+                            <input type="radio" class="btn-check" name="theme_color" id="Green_Theme" value="Green_Theme" autocomplete="off" />
+                            <label class="btn p-9 btn-outline-primary d-flex align-items-center justify-content-center"
+                                onclick="handleColorTheme('Green_Theme')" for="Green_Theme" data-bs-toggle="tooltip" data-bs-placement="top"
+                                data-bs-title="GREEN_THEME">
+                                <div
+                                    class="color-box rounded-circle d-flex align-items-center justify-content-center skin-4">
+                                    <i class="ti ti-check text-white d-flex icon fs-5"></i>
+                                </div>
+                            </label>
+
+                            <input type="radio" class="btn-check" name="theme_color" id="Cyan_Theme" value="Cyan_Theme" autocomplete="off" />
+                            <label class="btn p-9 btn-outline-primary d-flex align-items-center justify-content-center"
+                                onclick="handleColorTheme('Cyan_Theme')" for="Cyan_Theme" data-bs-toggle="tooltip" data-bs-placement="top"
+                                data-bs-title="CYAN_THEME">
+                                <div
+                                    class="color-box rounded-circle d-flex align-items-center justify-content-center skin-5">
+                                    <i class="ti ti-check text-white d-flex icon fs-5"></i>
+                                </div>
+                            </label>
+
+                            <input type="radio" class="btn-check" name="theme_color" id="Orange_Theme" value="Orange_Theme" autocomplete="off" />
+                            <label class="btn p-9 btn-outline-primary d-flex align-items-center justify-content-center"
+                                onclick="handleColorTheme('Orange_Theme')" for="Orange_Theme" data-bs-toggle="tooltip" data-bs-placement="top"
+                                data-bs-title="ORANGE_THEME">
+                                <div
+                                    class="color-box rounded-circle d-flex align-items-center justify-content-center skin-6">
+                                    <i class="ti ti-check text-white d-flex icon fs-5"></i>
+                                </div>
+                            </label>
+                        </div>
+
+                        <h6 class="mt-5 fw-semibold fs-4 mb-2">Container Option</h6>
+
+                        <div class="d-flex flex-row gap-3 customizer-box" role="group">
+                            <input type="radio" class="btn-check" name="boxed_layout" id="boxed-layout" value="true" autocomplete="off" />
+                            <label class="btn p-9 btn-outline-primary" for="boxed-layout">
+                                <i class="icon ti ti-layout-distribute-vertical fs-7 me-2"></i>Boxed
+                            </label>
+
+                            <input type="radio" class="btn-check" name="boxed_layout" id="full-layout" value="false" autocomplete="off" />
+                            <label class="btn p-9 btn-outline-primary" for="full-layout">
+                                <i class="icon ti ti-layout-distribute-horizontal fs-7 me-2"></i>Full
+                            </label>
+                        </div>
+
+                        <h6 class="fw-semibold fs-4 mb-2 mt-5">Sidebar Type</h6>
+                        <div class="d-flex flex-row gap-3 customizer-box" role="group">
+                            <a href="javascript:void(0)" class="fullsidebar">
+                                <input type="radio" class="btn-check" name="sidebar_type" id="full-sidebar" value="full" autocomplete="off" />
+                                <label class="btn p-9 btn-outline-primary" for="full-sidebar">
+                                    <i class="icon ti ti-layout-sidebar-right fs-7 me-2"></i>Full
+                                </label>
+                            </a>
+                            <div>
+                                <input type="radio" class="btn-check" name="sidebar_type" id="mini-sidebar" value="mini-sidebar" autocomplete="off" />
+                                <label class="btn p-9 btn-outline-primary" for="mini-sidebar">
+                                    <i class="icon ti ti-layout-sidebar fs-7 me-2"></i>Collapse
+                                </label>
+                            </div>
+                        </div>
+
+                        <h6 class="mt-5 fw-semibold fs-4 mb-2">Card With</h6>
+
+                        <div class="d-flex flex-row gap-3 customizer-box" role="group">
+                            <input type="radio" class="btn-check" name="card_border" id="card-with-border" value="true" autocomplete="off" />
+                            <label class="btn p-9 btn-outline-primary" for="card-with-border">
+                                <i class="icon ti ti-border-outer fs-7 me-2"></i>Border
+                            </label>
+
+                            <input type="radio" class="btn-check" name="card_border" id="card-without-border" value="false" autocomplete="off" />
+                            <label class="btn p-9 btn-outline-primary" for="card-without-border">
+                                <i class="icon ti ti-border-none fs-7 me-2"></i>Shadow
+                            </label>
+                        </div>
+
+
+                        <br>
+                        <div class="col-12">
+                            <div class="d-flex align-items-center justify-content-end mt-4 gap-3">
+                                <button type="submit" id="updateButton" class="btn btn-primary"><i
+                                        class="fa fa-save"></i>
+                                    Update</button>
+                            </div>
+                        </div>
                     </div>
-
-                    <h6 class="mt-5 fw-semibold fs-4 mb-2">Card With</h6>
-
-                    <div class="d-flex flex-row gap-3 customizer-box" role="group">
-                        <input type="radio" class="btn-check" name="card-layout" id="card-with-border"
-                            autocomplete="off" />
-                        <label class="btn p-9 btn-outline-primary" for="card-with-border">
-                            <i class="icon ti ti-border-outer fs-7 me-2"></i>Border
-                        </label>
-
-                        <input type="radio" class="btn-check" name="card-layout" id="card-without-border"
-                            autocomplete="off" />
-                        <label class="btn p-9 btn-outline-primary" for="card-without-border">
-                            <i class="icon ti ti-border-none fs-7 me-2"></i>Shadow
-                        </label>
-                    </div>
-                </div>
+                </form>
             </div>
         </div>
+
+        <script>
+            var userSettings = {
+                Layout: "vertical", // vertical | horizontal
+                Direction: "ltr", // ltr | rtl
+                SidebarType: "{{ $profil->sidebar_type }}", // full | mini-sidebar
+                BoxedLayout: {{$profil->boxed_layout}}, // true | false
+                Theme: "{{ $profil->theme }}", // light | dark
+                ColorTheme: "{{ $profil->theme_color }}", // Blue_Theme | Aqua_Theme | Purple_Theme | Green_Theme | Cyan_Theme | Orange_Theme
+                cardBorder: {{$profil->card_border}}, // true | false
+            }
+
+            function handleColorTheme(e) {
+                document.documentElement.setAttribute("data-color-theme", e);
+            }
+        </script>
+
+      
 
         <!--  Search Bar -->
         <div class="modal fade" id="exampleModal" tabindex="-1" aria-hidden="true">
@@ -601,11 +587,16 @@
 
     </div>
     <div class="dark-transparent sidebartoggler"></div>
+
+
+
+
+
     <script src="{{ asset('template/back') }}/dist/js/vendor.min.js"></script>
     <!-- Import Js Files -->
     <script src="{{ asset('template/back') }}/dist/libs/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="{{ asset('template/back') }}/dist/libs/simplebar/dist/simplebar.min.js"></script>
-    <script src="{{ asset('template/back') }}/dist/js/theme/app.init.js"></script>
+    <!-- <script src="{{ asset('template/back') }}/dist/js/theme/app.init.js"></script> -->
     <script src="{{ asset('template/back') }}/dist/js/theme/theme.js"></script>
     <script src="{{ asset('template/back') }}/dist/js/theme/app.min.js"></script>
 
@@ -621,6 +612,58 @@
         });
     </script>
 
+
+    <script>
+                $(document).ready(function() {
+                    $('#updateProfilForm').on('submit', function(e) {
+                        e.preventDefault();
+                        let formData = new FormData(this);
+                        let id = '{{ $profil->id }}';
+
+                        $.ajax({
+                            url: '/profil/update_setting/' + id,
+                            type: 'POST', // Ubah sesuai metode yang sesuai
+                            data: formData,
+                            contentType: false,
+                            processData: false,
+                            headers: {
+                                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                            },
+                            success: function(response) {
+                                Swal.fire({
+                                    title: 'Success!',
+                                    text: response.message,
+                                    icon: 'success',
+                                    confirmButtonText: 'OK'
+                                }).then((result) => {
+                                    if (result.isConfirmed) {
+                                        window.location.reload();
+                                    }
+                                });
+                            },
+                            error: function(xhr) {
+                                let errors = xhr.responseJSON.errors;
+                                let errorMessages = '';
+
+                                $.each(errors, function(field, messages) {
+                                    errorMessages += messages.join(' ') + '\n';
+                                });
+
+                                Swal.fire({
+                                    title: 'Error!',
+                                    text: errorMessages || 'Gagal memperbarui profil.',
+                                    icon: 'error',
+                                    confirmButtonText: 'OK'
+                                });
+                            },
+                            complete: function() {
+                                $('#updateButton').prop('disabled', false).text('Update');
+                            }
+                        });
+
+                    });
+                });
+            </script>
     @stack('script')
 </body>
 

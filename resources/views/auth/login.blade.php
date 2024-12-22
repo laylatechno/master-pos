@@ -38,7 +38,7 @@
                             <img src="/upload/profil/{{ $profil->favicon }}" width="60" alt="">
                         </a>
                         <div class="d-none d-xl-flex align-items-center justify-content-center" style="height: calc(100vh - 80px);">
-                            <img src="{{ asset('template/back') }}/dist/images/login-bg.png" alt="" class="img-fluid" width="800">
+                            <img src="/upload/profil/{{ $profil->bg_login }}" alt="" class="img-fluid" width="800">
                         </div>
                     </div>
                     <div class="col-xl-5 col-xxl-4">

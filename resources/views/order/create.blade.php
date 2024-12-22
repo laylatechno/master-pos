@@ -69,7 +69,7 @@
 @endpush
 @section('content')
 <div class="container-fluid">
-    <div class="card bg-light-info shadow-none position-relative overflow-hidden" style="border: solid 0.5px #ccc;">
+    <!-- <div class="card bg-light-info shadow-none position-relative overflow-hidden" style="border: solid 0.5px #ccc;">
         <div class="card-body px-4 py-3">
             <div class="row align-items-center">
                 <div class="col-9">
@@ -89,9 +89,82 @@
                 </div>
             </div>
         </div>
+    </div> -->
+
+
+    <div class="card-body">
+        <!-- Section Tutorial -->
+        <div class="card mb-1" id="tutorial-section">
+            <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
+                <h5 class="card-title mb-0" style="color: white;">Cara Menggunakan Halaman Penjualan</h5>
+                <!-- Tombol Close -->
+                <button type="button" class="btn-close btn-close-white" aria-label="Close" onclick="closeTutorial()"></button>
+            </div>
+            <div class="card-body">
+
+
+
+
+
+                <ol>
+                    <li>
+                        Tentukan status transaksi, jika akan melakukan pesanan penjualan maka pilih status transaksi Pesanan Penjualan, lalu jika sudah terjadi penjualan kepada pelanggan, maka sesuaikan/edit dengan item penjualan yang real.
+                    </li>
+                    <li>
+                        Untuk transaksi penjualan yang <b>sudah diterima barang oleh pelanggan dan sudah diselesaikan pembayaran</b>, maka pilih status transaksi Lunas.
+                    </li>
+                    <li>
+                        Sisa transaksi diluar Pesanan Penjualan dan Lunas silahkan pilih antara <b>Belum Lunas dan Pending</b>
+                    </li>
+                    <li>
+                        Jika Status Transaksi <b>Lunas</b>, maka Pelanggan, Kas dan Jenis Pembayaran <b>Wajib Diisi</b> sehingga transaksi tersebut akan mengurangi Kas serta menambah Kuantiti Produk yang dipilih
+                    </li>
+                    <li>
+                        Pilih <b>Pelanggan</b> dari dropdown yang tersedia untuk menentukan kepada siapa barang dijual. Form ini memungkinkan Anda memilih pelanggan yang sudah terdaftar. Pilih pelanggan yang relevan atau tambahkan pelanggan baru jika diperlukan. Untuk Pelanggan yang sifatnya tentatif bisa memilih <b>Pelanggan Umum</b>
+                    </li>
+                    <li>
+                        Cari dan pilih <b>Produk</b> yang ingin dijual, lalu masukkan jumlah (Qty). Pilih produk dari daftar yang telah tersedia dan tentukan jumlah barang yang ingin dijual. Pastikan jumlah yang dimasukkan sesuai dengan stok yang ada.
+                    </li>
+                    <li>
+                        Untuk Pencarian Produk bisa menggunakan beberapa cara, yaitu <b>Barcode</b> (Kursor harus berada pada inputan Barcode), <b>Item Produk</b> Pada list yang terdapat Gambar dan juga mencari produk melalui <b>Dropdown Produk</b>.
+                    </li>
+                    <li>
+                        Untuk <b>Potongan Diskon</b> bisa menggunakan persentase % dan juga diskon jumlah (nilai)
+                    </li>
+                    <li>
+                        Pilih metode <b>Jenis Pembayaran</b>, apakah <b>TUNAI</b> atau <b>TRANSFER</b>. Pilih metode pembayaran yang digunakan oleh pelanggan. Jika pelanggan memilih pembayaran dengan tunai, pilih "TUNAI". Jika menggunakan transfer, pilih "TRANSFER".
+                    </li>
+                    <li>
+                        Jika pembayaran dilakukan dengan <b>TRANSFER</b>, unggah bukti pembayaran dengan memilih file gambar di bagian <b>Gambar</b>. Jika pembayaran menggunakan transfer, Anda perlu mengunggah bukti pembayaran dalam bentuk gambar (misalnya screenshot transfer). Pilih file gambar yang sesuai dari perangkat Anda <b>(Opsional)</b>.
+                    </li>
+                    <li>
+                        Setelah semua informasi lengkap, klik tombol <b>Simpan</b> untuk menyimpan data penjualan. Setelah memastikan semua data sudah terisi dengan benar, klik tombol "Simpan" untuk menyimpan transaksi penjualan Anda.
+                    </li>
+                </ol>
+                <p class="text-muted">
+                    Pastikan semua informasi telah diisi dengan benar sebelum menyimpan transaksi. Untuk membatalkan, Anda dapat menekan tombol <b>Kembali</b>.
+                </p>
+
+            </div>
+        </div>
+        <!-- End of Section Tutorial -->
+    </div>
+    <div class="card">
+        <button class="btn btn-primary" id="showTutorialBtn" onclick="toggleTutorial()"><i class="fa fa-eye"></i> Lihat Informasi</button>
     </div>
 
-    <section class="datatables">
+
+
+
+
+
+
+
+
+
+
+
+    <section class="datatables mt-1">
         <div class="row">
             <div class="col-12">
                 <div class="card">
@@ -108,9 +181,9 @@
                         @endif
 
 
-                        <div class="col-md-12 mb-3 mt-3">
+                        <div class="col-md-12 mb-3">
                             <div class="form-group">
-                                <input type="text" class="form-control" id="barcode" name="barcode" placeholder="Scan barcode produk" autofocus>
+                                <input style="background-color: yellow;" type="text" class="form-control" id="barcode" name="barcode" placeholder="Scan barcode produk" autofocus>
                             </div>
                         </div>
 
@@ -123,21 +196,27 @@
                                     <input type="hidden" id="no_order" name="no_order" value="{{ $no_order }}">{{ $no_order }}</input></b></h5>
                             <hr>
                             <div class="form-group mb-3 col-md-6">
-                                <label for="status" class="mb-2"> Status Transaksi : </label><br>
-                                <label style="margin-right: 6px;">
-                                    <input type="radio" name="status" value="Pesanan Penjualan" checked> Pesanan Penjualan
+                                <label for="status" class="mb-2">Status Transaksi :</label><br>
+                                <label style="margin-right: 6px;" title="Pesanan Penjualan: Transaksi ini sedang dalam tahap pesanan awal untuk penjualan. Barang atau jasa telah dipesan oleh pelanggan, tetapi pembayaran belum sepenuhnya dilakukan. (Pintasan: Alt+P)">
+                                    <input type="radio" name="status" value="Pesanan Penjualan" id="status-pesanan" checked>
+                                    Pesanan Penjualan <b>(Alt+P)</b>
                                 </label>
-                                <label style="margin-right: 6px;">
-                                    <input type="radio" name="status" value="Lunas"> Lunas
+                                <label style="margin-right: 6px;" title="Lunas: Semua pembayaran terkait transaksi ini telah diselesaikan. Tidak ada saldo atau kewajiban yang tersisa. (Pintasan: Alt+L)">
+                                    <input type="radio" name="status" value="Lunas" id="status-lunas">
+                                    Lunas <b>(Alt+L)</b>
                                 </label>
-                                <label style="margin-right: 6px;">
-                                    <input type="radio" name="status" value="Belum Lunas"> Belum Lunas
+                                <label style="margin-right: 6px;" title="Belum Lunas: Sebagian pembayaran telah dilakukan, tetapi masih ada sisa yang harus dilunasi. (Pintasan: Alt+B)">
+                                    <input type="radio" name="status" value="Belum Lunas" id="status-belum-lunas">
+                                    Belum Lunas <b>(Alt+B)</b>
                                 </label>
-                                <label style="margin-right: 6px;">
-                                    <input type="radio" name="status" value="Pending"> Pending
+                                <label style="margin-right: 6px;" title="Pending: Transaksi ini sedang menunggu tindakan atau konfirmasi lebih lanjut. Belum ada keputusan final. (Pintasan: Alt+N)">
+                                    <input type="radio" name="status" value="Pending" id="status-pending">
+                                    Pending <b>(Alt+N)</b>
                                 </label>
-
                             </div>
+
+
+
 
                             <div class="row mb-3">
                                 <div class="col-md-6 mb-3">
@@ -331,7 +410,7 @@
                             <div class="border-top">
                                 <div class="card-body">
                                     <button type="submit" class="btn btn-success" style="color:white;" id="btn-save-order"><i
-                                            class="fas fa-save"></i> Simpan</button>
+                                            class="fas fa-save"></i> Simpan (F8)</button>
                                     <a href="{{ route('orders.index') }}" class="btn btn-danger" style="color:white;"><i
                                             class="fas fa-step-backward"></i> Kembali</a>
                                 </div>
@@ -352,6 +431,93 @@
 <script src="{{ asset('template/back') }}/dist/js/forms/select2.init.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        // Ambil status tutorial dari server
+        fetch('/tutorial-status')
+            .then(response => response.json())
+            .then(data => {
+                if (data.tutorialClosed) {
+                    // Jika tutorial sudah ditutup, sembunyikan card dan tampilkan tombol "Munculkan Informasi"
+                    document.getElementById('tutorial-section').style.display = 'none';
+                    document.getElementById('showTutorialBtn').style.display = 'block';
+                } else {
+                    // Jika tutorial masih terbuka, tampilkan card tutorial
+                    document.getElementById('tutorial-section').style.display = 'block';
+                    document.getElementById('showTutorialBtn').style.display = 'none';
+                }
+            });
+    });
+
+    // Fungsi untuk menutup tutorial dan menyimpan statusnya
+    function closeTutorial() {
+        // Menyimpan status tutorial ke file JSON
+        fetch('/set-tutorial-status', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                },
+                body: JSON.stringify({
+                    tutorialClosed: true
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Sembunyikan card tutorial dan tampilkan tombol "Munculkan Informasi"
+                document.getElementById('tutorial-section').style.display = 'none';
+                document.getElementById('showTutorialBtn').style.display = 'block';
+            });
+    }
+
+    // Fungsi untuk menampilkan tutorial kembali
+    function toggleTutorial() {
+        // Menyimpan status tutorial ke file JSON
+        fetch('/set-tutorial-status', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                },
+                body: JSON.stringify({
+                    tutorialClosed: false
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Tampilkan card tutorial dan sembunyikan tombol
+                document.getElementById('tutorial-section').style.display = 'block';
+                document.getElementById('showTutorialBtn').style.display = 'none';
+            });
+    }
+</script>
+
+
+
+<script>
+    $(document).ready(function() {
+        // Event listener untuk shortcut keyboard
+        $(document).on('keydown', function(e) {
+            if (e.altKey) {
+                switch (e.key.toLowerCase()) {
+                    case 'p': // Alt + P untuk Pesanan Penjualan
+                        $('#status-pesanan').prop('checked', true).focus();
+                        break;
+                    case 'l': // Alt + L untuk Lunas
+                        $('#status-lunas').prop('checked', true).focus();
+                        break;
+                    case 'b': // Alt + B untuk Belum Lunas
+                        $('#status-belum-lunas').prop('checked', true).focus();
+                        break;
+                    case 'n': // Alt + D untuk Pending
+                        $('#status-pending').prop('checked', true).focus();
+                        break;
+                }
+            }
+        });
+    });
+</script>
 
 <script>
     $(document).ready(function() {
@@ -708,8 +874,8 @@
 {{-- simpan --}}
 <script>
     $(document).ready(function() {
-        $('#form-order').submit(function(e) {
-            e.preventDefault();
+        // Fungsi untuk submit form
+        function submitForm() {
             const tombolSimpan = $('#btn-save-order');
             const iconSimpan = tombolSimpan.find('i'); // Mengambil ikon di dalam tombol
 
@@ -717,15 +883,14 @@
             iconSimpan.removeClass('fas fa-save').addClass('fas fa-spinner fa-spin');
             tombolSimpan.prop('disabled', true); // Menonaktifkan tombol agar tidak bisa diklik dua kali
 
-            // Ambil nilai status, customer_id, cash_id, type_payment, input_payment, dan total_cost
+            // Validasi dan pengambilan data
             var status = $('input[name="status"]:checked').val();
             var customerId = $('#customer_id').val();
             var cashId = $('#cash_id').val();
             var typePayment = $('#type_payment').val();
-            var inputPayment = parseFloat($('#input_payment').val()) || 0; // Ambil nilai input_payment (pastikan dalam bentuk angka)
-            var totalCost = parseFloat($('#total_cost').val()) || 0; // Ambil nilai total_cost (pastikan dalam bentuk angka)
+            var inputPayment = parseFloat($('#input_payment').val().replace(/[^0-9]/g, '')) || 0;
+            var totalCost = parseFloat($('#total_cost').text().replace(/[^0-9]/g, '')) || 0;
 
-            // Validasi jika status "Lunas" dan customer_id kosong
             if ((status === 'Lunas') && !customerId) {
                 Swal.fire({
                     title: 'Error!',
@@ -739,7 +904,6 @@
                 return;
             }
 
-            // Validasi jika cash_id kosong untuk status "Lunas"
             if (status === 'Lunas' && !cashId) {
                 Swal.fire({
                     title: 'Error!',
@@ -753,7 +917,6 @@
                 return;
             }
 
-            // Validasi jika type_payment kosong untuk status "Lunas"
             if (status === 'Lunas' && !typePayment) {
                 Swal.fire({
                     title: 'Error!',
@@ -767,11 +930,6 @@
                 return;
             }
 
-            // Ambil nilai total bayar dan input pembayaran, hilangkan separator, lalu ubah menjadi angka
-            var totalCost = parseFloat($('#total_cost').text().replace(/[^0-9]/g, '')) || 0; // Mengambil teks, hanya angka
-            var inputPayment = parseFloat($('#input_payment').val().replace(/[^0-9]/g, '')) || 0; // Mengambil input, hanya angka
-
-            // Validasi jika jumlah pembayaran kurang dari total biaya
             if (status === 'Lunas' && inputPayment < totalCost) {
                 Swal.fire({
                     title: 'Kurang Bayar!',
@@ -785,26 +943,33 @@
                 return;
             }
 
-
-            // Jika semua validasi lolos, lanjutkan ke pengiriman data dengan AJAX
-            var formData = new FormData(this); // Menggunakan FormData untuk mengambil data formulir
+            var formData = new FormData($('#form-order')[0]);
 
             $.ajax({
                 url: "{{ route('orders.store') }}",
                 type: 'POST',
                 data: formData,
-                processData: false, // Mengabaikan pemrosesan data otomatis
-                contentType: false, // Mengabaikan pengaturan tipe konten otomatis
+                processData: false,
+                contentType: false,
                 success: function(response) {
                     Swal.fire({
                         title: 'Sukses!',
                         text: response.message,
                         icon: 'success',
-                        confirmButtonText: 'OK'
-                    }).then(function() {
-                        window.location.href = "{{ route('orders.create') }}";
+                        showCancelButton: true,
+                        confirmButtonText: '<i class="fas fa-print"></i> Cetak Struk',  // Ikon untuk "Cetak Struk"
+                        cancelButtonText: '<i class="fas fa-times"></i> Tidak, Terima Kasih',  // Ikon untuk "Tidak, Terima Kasih"
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            // Jika memilih "Cetak Struk", arahkan ke route print_struk dengan ID transaksi
+                            window.location.href = "{{ url('/orders') }}/" + response.order_id + "/print-struk";
+                        } else {
+                            // Jika memilih "Tidak", reload halaman
+                            window.location.href = "{{ route('orders.create') }}";
+                        }
                     });
                 },
+
                 error: function(xhr, status, error) {
                     Swal.fire({
                         title: 'Error!',
@@ -818,9 +983,24 @@
                     console.error(error);
                 }
             });
+        }
+
+        // Event listener untuk submit form ketika tombol simpan diklik
+        $('#form-order').submit(function(e) {
+            e.preventDefault();
+            submitForm();
+        });
+
+        // Shortcut keyboard untuk tombol F8
+        $(document).on('keydown', function(e) {
+            if (e.key === 'F8') {
+                e.preventDefault();
+                submitForm();
+            }
         });
     });
 </script>
+
 
 
 

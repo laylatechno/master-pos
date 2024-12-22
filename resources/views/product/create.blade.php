@@ -27,6 +27,57 @@
         </div>
     </div>
 
+
+    <div class="card-body">
+        <!-- Section Tutorial -->
+        <div class="card mb-1" id="tutorial-section">
+            <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
+                <h5 class="card-title mb-0" style="color: white;">Cara Menggunakan Form Tambah Produk</h5>
+                <!-- Tombol Close -->
+                <button type="button" class="btn-close btn-close-white" aria-label="Close" onclick="closeTutorial()"></button>
+            </div>
+            <div class="card-body">
+                <ol>
+                    <li>
+                        Masukkan <b>Nama Produk</b> yang ingin ditambahkan. Pastikan nama produk unik agar tidak membingungkan saat dicari di daftar produk.
+                    </li>
+                    <li>
+                        Pilih <b>Kategori Produk</b> dari dropdown yang tersedia. Kategori digunakan untuk mengelompokkan produk agar lebih mudah dikelola.
+                    </li>
+                    <li>
+                        Masukkan <b>Kode Produk</b> dengan karakter bebas, sedangkan untuk <b>Barcode</b> sifatnya opsional, karena bisa diisi ketika proses generate barcode
+                    </li>
+                    <li>
+                        Masukkan <b>Harga Produk</b> dalam bentuk angka tanpa simbol mata uang (contoh: 50000). Pastikan harga sesuai dengan kebijakan penjualan.
+                    </li>
+                    <li>
+                        Jika produk memiliki <b>harga yang bervariasi</b> sesuai dengan jenis/kategori konsumen/pelanggan, maka bisa diatur pada tab <b>Harga Lain</b>
+                    </li>
+                    <li>
+                        Tentukan <b>Jumlah Stok</b> awal produk. Masukkan angka yang mencerminkan jumlah barang yang tersedia saat ini. Namun jika misal belum ada silahkan berikan nilai default 0
+                    </li>
+                    <li>
+                        Upload <b>Gambar Produk</b> dengan format yang didukung (JPEG/PNG). Gambar ini akan membantu pelanggan mengenali produk.
+                    </li>
+                    <li>
+                        Isi <b>Deskripsi Produk</b> untuk memberikan informasi tambahan seperti fitur atau keunggulan produk.
+                    </li>
+                    <li>
+                        Setelah semua informasi lengkap, klik tombol <b>Simpan</b> untuk menambahkan produk ke dalam database. Pastikan semua data sudah benar sebelum menyimpan.
+                    </li>
+                </ol>
+                <p class="text-muted">
+                    Pastikan semua informasi telah diisi dengan benar sebelum menyimpan data. Jika ada kesalahan, Anda dapat mengedit kembali atau membatalkan dengan menekan tombol <b>Kembali</b>.
+                </p>
+            </div>
+        </div>
+        <!-- End of Section Tutorial -->
+    </div>
+
+    <div class="card">
+        <button class="btn btn-primary" id="showTutorialBtn" onclick="toggleTutorial()"><i class="fa fa-eye"></i> Lihat Informasi</button>
+    </div>
+
     <section class="datatables">
         <div class="row">
             <div class="col-12">
@@ -286,5 +337,67 @@
         $('#category_id').select2();
         $('#customer_category_id').select2();
     });
+</script>
+
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        // Ambil status tutorial dari server
+        fetch('/tutorial-status')
+            .then(response => response.json())
+            .then(data => {
+                if (data.tutorialClosed) {
+                    // Jika tutorial sudah ditutup, sembunyikan card dan tampilkan tombol "Munculkan Informasi"
+                    document.getElementById('tutorial-section').style.display = 'none';
+                    document.getElementById('showTutorialBtn').style.display = 'block';
+                } else {
+                    // Jika tutorial masih terbuka, tampilkan card tutorial
+                    document.getElementById('tutorial-section').style.display = 'block';
+                    document.getElementById('showTutorialBtn').style.display = 'none';
+                }
+            });
+    });
+
+    // Fungsi untuk menutup tutorial dan menyimpan statusnya
+    function closeTutorial() {
+        // Menyimpan status tutorial ke file JSON
+        fetch('/set-tutorial-status', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                },
+                body: JSON.stringify({
+                    tutorialClosed: true
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Sembunyikan card tutorial dan tampilkan tombol "Munculkan Informasi"
+                document.getElementById('tutorial-section').style.display = 'none';
+                document.getElementById('showTutorialBtn').style.display = 'block';
+            });
+    }
+
+    // Fungsi untuk menampilkan tutorial kembali
+    function toggleTutorial() {
+        // Menyimpan status tutorial ke file JSON
+        fetch('/set-tutorial-status', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                },
+                body: JSON.stringify({
+                    tutorialClosed: false
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Tampilkan card tutorial dan sembunyikan tombol
+                document.getElementById('tutorial-section').style.display = 'block';
+                document.getElementById('showTutorialBtn').style.display = 'none';
+            });
+    }
 </script>
 @endpush

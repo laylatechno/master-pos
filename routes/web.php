@@ -1,5 +1,7 @@
 <?php
-use App\Http\Controllers\GaleriesController;
+
+use App\Http\Controllers\AdjustmentController;
+use App\Http\Controllers\StockOpnameController;
 use App\Http\Controllers\CashController;
 use App\Http\Controllers\PurchaseController;
 use App\Http\Controllers\CategoryController;
@@ -12,12 +14,14 @@ use App\Http\Controllers\OrderController;
 use App\Http\Controllers\PermissionsController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ProfilController;
+use App\Http\Controllers\ReportController;
 use App\Http\Controllers\ResourceController;
 use App\Http\Controllers\RolesController;
 use App\Http\Controllers\RouteController;
 use App\Http\Controllers\SupplierController;
 use App\Http\Controllers\TransactionCategoryController;
 use App\Http\Controllers\TransactionController;
+use App\Http\Controllers\TutorialController;
 use App\Http\Controllers\UnitController;
 use App\Http\Controllers\UsersController;
 use Illuminate\Support\Facades\Auth;
@@ -34,7 +38,46 @@ Route::get('/', function () {
 Route::get('/home', [HomeController::class, 'index'])->name('home');
 
 Route::group(['middleware' => ['auth']], function () {
-    Route::resource('galeries', GaleriesController::class);
+    Route::get('/tutorial-status', [TutorialController::class, 'getTutorialStatus']);
+    Route::post('/set-tutorial-status', [TutorialController::class, 'setTutorialStatus']);
+
+    Route::resource('adjustments', AdjustmentController::class);
+    Route::get('/adjustments/print/{id}', [AdjustmentController::class, 'print'])->name('adjustments.print');
+
+
+    Route::resource('stock_opname', StockOpnameController::class);
+    Route::get('/stock-opname/print/{id}', [StockOpnameController::class, 'print'])->name('stock_opname.print');
+
+    // Route::resource('purchase_reports', ReportController::class);
+    Route::get('report/purchase_reports', [ReportController::class, 'purchase_report'])->name('report.purchase_reports');
+    Route::get('report/purchase_reports/export', [ReportController::class, 'exportExcelPurchase'])->name('report.purchase_reports.export');
+    Route::get('report/purchase_reports/export-pdf', [ReportController::class, 'exportPdfPurchase'])->name('report.purchase_reports.export_pdf');
+    Route::get('report/purchase_reports/preview-pdf', [ReportController::class, 'previewPdfPurchase'])->name('report.purchase_reports.preview_pdf');
+
+
+
+
+    Route::get('report/order_reports', [ReportController::class, 'order_report'])->name('report.order_reports');
+    Route::get('report/order_reports/export', [ReportController::class, 'exportExcelOrder'])->name('report.order_reports.export');
+    Route::get('report/order_reports/export-pdf', [ReportController::class, 'exportPdfOrder'])->name('report.order_reports.export_pdf');
+    Route::get('report/order_reports/preview-pdf', [ReportController::class, 'previewPdfOrder'])->name('report.order_reports.preview_pdf');
+
+
+
+    Route::get('/report/product_reports', [ReportController::class, 'product_report'])->name('report.product_reports');
+    Route::get('/report/product-reports/export', [ReportController::class, 'exportExcelProduct'])->name('report.product_reports.export');
+    Route::get('/report/product-reports/export-pdf', [ReportController::class, 'exportPdfProduct'])->name('report.product_reports.export_pdf');
+    Route::get('/report/product-reports/preview-pdf', [ReportController::class, 'previewPdfProduct'])->name('report.product_reports.preview_pdf');
+
+
+
+    Route::get('/report/profit_reports', [ReportController::class, 'profit_report'])->name('report.profit_reports');
+    Route::get('/report/profit-reports/export', [ReportController::class, 'exportExcelProfit'])->name('report.profit_reports.export');
+    Route::get('/report/profit-reports/export-pdf', [ReportController::class, 'exportPdfProfit'])->name('report.profit_reports.export_pdf');
+    Route::get('/report/profit-reports/preview-pdf', [ReportController::class, 'previewPdfProfit'])->name('report.profit_reports.preview_pdf');
+
+
+
 
     Route::resource('transactions', TransactionController::class);
     Route::resource('transaction_categories', TransactionCategoryController::class);
@@ -46,15 +89,13 @@ Route::group(['middleware' => ['auth']], function () {
     Route::resource('customers', CustomerController::class);
     Route::resource('orders', OrderController::class);
     Route::get('/orders/{id}/print-invoice', [OrderController::class, 'printInvoice'])->name('orders.print_invoice');
+    Route::get('/orders/{id}/print-struk', [OrderController::class, 'printStruk'])->name('orders.print_struk');
     Route::put('orders/{order}', [OrderController::class, 'update'])->name('orders.update');
     Route::resource('units', UnitController::class);
     Route::resource('products', ProductController::class);
     Route::get('/get-product-price', [ProductController::class, 'getProductPrice']);
     Route::post('/products/generate-barcode', [ProductController::class, 'generateBarcode'])->name('products.generate_barcode');
     Route::get('/get-product-by-barcode', [ProductController::class, 'getProductByBarcode']);
-
-    
-
     Route::resource('categories', CategoryController::class);
     Route::resource('routes', RouteController::class);
     Route::get('/generate-routes', [RouteController::class, 'generateRoutes'])->name('routes.generate');
@@ -64,6 +105,7 @@ Route::group(['middleware' => ['auth']], function () {
     Route::resource('users', UsersController::class);
     Route::resource('permissions', PermissionsController::class);
     Route::resource('profil', ProfilController::class);
+    Route::put('/profil/update_setting/{id}', [ProfilController::class, 'update_setting'])->name('profil.update_setting');
     Route::resource('menu_groups', MenuGroupsController::class);
     Route::resource('menu_items', MenuItemsController::class);
     Route::post('menu-items/update-positions', [MenuItemsController::class, 'updatePositions'])->name('menu_items.update_positions');

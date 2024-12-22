@@ -56,11 +56,25 @@ class OrderController extends Controller
 
     public function printInvoice($id)
     {
+        $title = "Halaman Invoice Penjualan";
+        $subtitle = "Menu Invoice Penjualan";
         // Ambil data pembelian berdasarkan ID
         $order = Order::with(['customer', 'user', 'orderItems.product'])->findOrFail($id);
 
         // Kirim data pembelian ke view
-        return view('order.print', compact('order'));
+        return view('order.print_invoice', compact('order','title','subtitle'));
+    }
+
+
+    public function printStruk($id)
+    {
+        $title = "Halaman Struk Penjualan";
+        $subtitle = "Menu Struk Penjualan";
+        // Ambil data pembelian berdasarkan ID
+        $order = Order::with(['customer', 'user', 'orderItems.product'])->findOrFail($id);
+
+        // Kirim data pembelian ke view
+        return view('order.print_struk', compact('order','title','subtitle'));
     }
 
 
@@ -242,7 +256,12 @@ class OrderController extends Controller
         $this->simpanLogHistori('Create', 'Order', $order->id, $loggedInUserId, null, json_encode($order));
 
         // Kembalikan respons sukses
-        return response()->json(['success' => true, 'message' => 'Penjualan berhasil disimpan'], 200);
+        return response()->json([
+            'success' => true,
+            'message' => 'Penjualan berhasil disimpan',
+            'order_id' => $orderId, // Kirim ID order untuk digunakan di frontend
+            'print_option' => true, // Memberikan informasi bahwa pencetakan struk tersedia
+        ], 200);
     }
 
     /**

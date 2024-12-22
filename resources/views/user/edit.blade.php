@@ -43,7 +43,7 @@
                             </div>
                             @endif
 
-                            <form method="POST" action="{{ route('users.update', $data_user->id) }}">
+                            <form method="POST" action="{{ route('users.update', $data_user->id) }}" enctype="multipart/form-data">
                                 @csrf
                                 @method('PUT')
                                 <div class="row">
@@ -76,6 +76,53 @@
                                             </optgroup>
                                         </select>
                                     </div>
+                                    <div class="col-md-12 mb-3">
+                                    <label for="roles" class="form-label"><strong>Gambar:</strong></label>
+                                    <input type="file" name="image" class="form-control" id="image" onchange="previewImage()">
+                                    <canvas id="preview_canvas" style="display: none; max-width: 100%; margin-top: 10px;"></canvas>
+                                    <img id="preview_image" src="#" alt="Preview Logo" style="display: none; max-width: 100%; margin-top: 10px;">
+
+                                    <script>
+                                        function previewImage() {
+                                            var previewCanvas = document.getElementById('preview_canvas');
+                                            var previewImage = document.getElementById('preview_image');
+                                            var fileInput = document.getElementById('image');
+                                            var file = fileInput.files[0];
+                                            var reader = new FileReader();
+
+                                            reader.onload = function(e) {
+                                                var img = new Image();
+                                                img.src = e.target.result;
+
+                                                img.onload = function() {
+                                                    var canvasContext = previewCanvas.getContext('2d');
+                                                    var maxWidth = 300; // Max width diperbesar
+                                                    var scaleFactor = maxWidth / img.width;
+                                                    var newHeight = img.height * scaleFactor;
+
+                                                    // Atur dimensi canvas
+                                                    previewCanvas.width = maxWidth;
+                                                    previewCanvas.height = newHeight;
+
+                                                    // Gambar ke canvas
+                                                    canvasContext.drawImage(img, 0, 0, maxWidth, newHeight);
+
+                                                    // Tampilkan pratinjau
+                                                    previewCanvas.style.display = 'block';
+                                                    previewImage.style.display = 'none';
+                                                };
+                                            };
+
+                                            if (file) {
+                                                reader.readAsDataURL(file); // Membaca file sebagai URL data
+                                            } else {
+                                                // Reset pratinjau jika tidak ada file
+                                                previewImage.src = '';
+                                                previewCanvas.style.display = 'none';
+                                            }
+                                        }
+                                    </script>
+                                </div>
                                     <div class="col-md-12">
                                         <button type="submit" class="btn btn-primary btn-sm mt-2 mb-3"><i class="fa fa-save"></i> Update</button>
                                         <a class="btn btn-warning btn-sm mt-2 mb-3" href="{{ route('users.index') }}"><i class="fa fa-undo"></i> Kembali</a>

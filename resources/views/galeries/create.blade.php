@@ -1,1 +1,0 @@
-<!-- Halaman create untuk Galeries -->

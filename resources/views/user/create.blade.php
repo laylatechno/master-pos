@@ -44,19 +44,18 @@
                         </div>
                         @endif
 
-                        <form method="POST" action="{{ route('users.store') }}">
+                        <form method="POST" action="{{ route('users.store') }}" enctype="multipart/form-data">
                             @csrf
                             <div class="row">
-                                <!-- Input Nama -->
                                 <div class="col-md-12 mb-3">
                                     <label for="name" class="form-label"><strong>Nama:</strong></label>
-                                    <input type="text" name="name" id="name" class="form-control" placeholder="Nama" value="{{ old('name') }}">
+                                    <input type="text" name="name" id="name" class="form-control" placeholder="Nama" value="{{ old('name', $user->name ?? '') }}">
                                 </div>
 
                                 <!-- Input Email -->
                                 <div class="col-md-12 mb-3">
                                     <label for="email" class="form-label"><strong>Email:</strong></label>
-                                    <input type="email" name="email" id="email" class="form-control" placeholder="Email" value="{{ old('email') }}">
+                                    <input type="email" name="email" id="email" class="form-control" placeholder="Email" value="{{ old('email', $user->email ?? '') }}">
                                 </div>
 
                                 <!-- Input Password -->
@@ -77,9 +76,22 @@
                                     <select name="roles[]" id="roles" class="select2 form-control" multiple="multiple" style="width: 100%">
                                         <option></option>
                                         @foreach ($roles as $value => $label)
-                                        <option value="{{ $value }}" {{ in_array($value, old('roles', [])) ? 'selected' : '' }}>{{ $label }}</option>
+                                        <option value="{{ $value }}" {{ in_array($value, old('roles', $userRoles ?? [])) ? 'selected' : '' }}>
+                                            {{ $label }}
+                                        </option>
                                         @endforeach
                                     </select>
+                                </div>
+
+
+                                <div class="col-md-12 mb-3">
+                                    <label for="roles" class="form-label"><strong>Gambar:</strong></label>
+                                    <input type="file" name="image" class="form-control" id="image" onchange="previewImage()">
+                                    <canvas id="preview_canvas" style="display: none; max-width: 100%; margin-top: 10px;"></canvas>
+                                    <img id="preview_image" src="#" alt="Preview Logo" style="display: none; max-width: 100%; margin-top: 10px;">
+
+
+                              
                                 </div>
 
                                 <!-- Button Actions -->

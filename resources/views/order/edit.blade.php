@@ -70,7 +70,7 @@
 
 
 <div class="container-fluid">
-    <div class="card bg-light-info shadow-none position-relative overflow-hidden" style="border: solid 0.5px #ccc;">
+    <!-- <div class="card bg-light-info shadow-none position-relative overflow-hidden" style="border: solid 0.5px #ccc;">
         <div class="card-body px-4 py-3">
             <div class="row align-items-center">
                 <div class="col-9">
@@ -90,7 +90,69 @@
                 </div>
             </div>
         </div>
+    </div> -->
+
+    <div class="card-body">
+        <!-- Section Tutorial -->
+        <div class="card mb-1" id="tutorial-section">
+            <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
+                <h5 class="card-title mb-0" style="color: white;">Cara Menggunakan Halaman Penjualan</h5>
+                <!-- Tombol Close -->
+                <button type="button" class="btn-close btn-close-white" aria-label="Close" onclick="closeTutorial()"></button>
+            </div>
+            <div class="card-body">
+
+
+
+
+
+                <ol>
+                    <li>
+                        Tentukan status transaksi, jika akan melakukan pesanan penjualan maka pilih status transaksi Pesanan Penjualan, lalu jika sudah terjadi penjualan kepada pelanggan, maka sesuaikan/edit dengan item penjualan yang real.
+                    </li>
+                    <li>
+                        Untuk transaksi penjualan yang <b>sudah diterima barang oleh pelanggan dan sudah diselesaikan pembayaran</b>, maka pilih status transaksi Lunas.
+                    </li>
+                    <li>
+                        Sisa transaksi diluar Pesanan Penjualan dan Lunas silahkan pilih antara <b>Belum Lunas dan Pending</b>
+                    </li>
+                    <li>
+                        Jika Status Transaksi <b>Lunas</b>, maka Pelanggan, Kas dan Jenis Pembayaran <b>Wajib Diisi</b> sehingga transaksi tersebut akan mengurangi Kas serta menambah Kuantiti Produk yang dipilih
+                    </li>
+                    <li>
+                        Pilih <b>Pelanggan</b> dari dropdown yang tersedia untuk menentukan kepada siapa barang dijual. Form ini memungkinkan Anda memilih pelanggan yang sudah terdaftar. Pilih pelanggan yang relevan atau tambahkan pelanggan baru jika diperlukan. Untuk Pelanggan yang sifatnya tentatif bisa memilih <b>Pelanggan Umum</b>
+                    </li>
+                    <li>
+                        Cari dan pilih <b>Produk</b> yang ingin dijual, lalu masukkan jumlah (Qty). Pilih produk dari daftar yang telah tersedia dan tentukan jumlah barang yang ingin dijual. Pastikan jumlah yang dimasukkan sesuai dengan stok yang ada.
+                    </li>
+                    <li>
+                        Untuk Pencarian Produk bisa menggunakan beberapa cara, yaitu <b>Barcode</b> (Kursor harus berada pada inputan Barcode), <b>Item Produk</b> Pada list yang terdapat Gambar dan juga mencari produk melalui <b>Dropdown Produk</b>.
+                    </li>
+                    <li>
+                        Untuk <b>Potongan Diskon</b> bisa menggunakan persentase % dan juga diskon jumlah (nilai)
+                    </li>
+                    <li>
+                        Pilih metode <b>Jenis Pembayaran</b>, apakah <b>TUNAI</b> atau <b>TRANSFER</b>. Pilih metode pembayaran yang digunakan oleh pelanggan. Jika pelanggan memilih pembayaran dengan tunai, pilih "TUNAI". Jika menggunakan transfer, pilih "TRANSFER".
+                    </li>
+                    <li>
+                        Jika pembayaran dilakukan dengan <b>TRANSFER</b>, unggah bukti pembayaran dengan memilih file gambar di bagian <b>Gambar</b>. Jika pembayaran menggunakan transfer, Anda perlu mengunggah bukti pembayaran dalam bentuk gambar (misalnya screenshot transfer). Pilih file gambar yang sesuai dari perangkat Anda <b>(Opsional)</b>.
+                    </li>
+                    <li>
+                        Setelah semua informasi lengkap, klik tombol <b>Simpan</b> untuk menyimpan data penjualan. Setelah memastikan semua data sudah terisi dengan benar, klik tombol "Simpan" untuk menyimpan transaksi penjualan Anda.
+                    </li>
+                </ol>
+                <p class="text-muted">
+                    Pastikan semua informasi telah diisi dengan benar sebelum menyimpan transaksi. Untuk membatalkan, Anda dapat menekan tombol <b>Kembali</b>.
+                </p>
+
+            </div>
+        </div>
+        <!-- End of Section Tutorial -->
     </div>
+    <div class="card">
+        <button class="btn btn-primary" id="showTutorialBtn" onclick="toggleTutorial()"><i class="fa fa-eye"></i> Lihat Informasi</button>
+    </div>
+
 
     <section class="datatables">
         <div class="row">
@@ -111,7 +173,7 @@
 
                         <div class="col-md-12 mb-3 mt-3">
                             <div class="form-group">
-                                <input type="text" class="form-control" id="barcode" name="barcode" placeholder="Scan barcode produk" autofocus>
+                                <input style="background-color: yellow;" type="text" class="form-control" id="barcode" name="barcode" placeholder="Scan barcode produk" autofocus>
                             </div>
                         </div>
 
@@ -130,16 +192,16 @@
                             <div class="form-group mb-3 col-md-6">
                                 <label for="status" class="mb-2"> Status Pembayaran : </label><br>
                                 <label style="margin-right: 6px;">
-                                    <input type="radio" name="status" value="Pesanan Penjualan" {{ old('status', $order->status) == 'Pesanan Penjualan' ? 'checked' : '' }}> Pesanan Penjualan
+                                    <input type="radio" name="status"   id="status-pesanan" value="Pesanan Penjualan" {{ old('status', $order->status) == 'Pesanan Penjualan' ? 'checked' : '' }}> Pesanan Penjualan <b>(Alt+P)</b>
                                 </label>
                                 <label style="margin-right: 6px;">
-                                    <input type="radio" name="status" value="Lunas" {{ old('status', $order->status) == 'Lunas' ? 'checked' : '' }}> Lunas
+                                    <input type="radio" name="status" id="status-lunas" value="Lunas" {{ old('status', $order->status) == 'Lunas' ? 'checked' : '' }}> Lunas <b>(Alt+L)</b>
                                 </label>
                                 <label style="margin-right: 6px;">
-                                    <input type="radio" name="status" value="Belum Lunas" {{ old('status', $order->status) == 'Belum Lunas' ? 'checked' : '' }}> Belum Lunas
+                                    <input type="radio" name="status" id="status-belum-lunas" value="Belum Lunas" {{ old('status', $order->status) == 'Belum Lunas' ? 'checked' : '' }}> Belum Lunas  <b>(Alt+B)</b>
                                 </label>
                                 <label style="margin-right: 6px;">
-                                    <input type="radio" name="status" value="Pending" {{ old('status', $order->status) == 'Pending' ? 'checked' : '' }}> Pending
+                                    <input type="radio" name="status" id="status-pending" value="Pending" {{ old('status', $order->status) == 'Pending' ? 'checked' : '' }}> Pending <b>(Alt+N)</b>
                                 </label>
                             </div>
 
@@ -244,7 +306,7 @@
                                                     <input type="text" class="form-control order_price" name="order_price[]" value="{{ $item->order_price }}">
                                                 </td>
                                                 <td>
-                                                    <input type="text" class="form-control stock" name="stock[]" value="{{ $item->product->stock }}">
+                                                    <input type="text" class="form-control stock" name="stock[]" value="{{ $item->product->stock }}" readonly>
                                                 </td>
                                                 <td>
                                                     <input type="number" class="form-control quantity" name="quantity[]" value="{{ $item->quantity }}">
@@ -401,6 +463,95 @@
 <script src="{{ asset('template/back') }}/dist/libs/select2/dist/js/select2.full.min.js"></script>
 <script src="{{ asset('template/back') }}/dist/libs/select2/dist/js/select2.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        // Ambil status tutorial dari server
+        fetch('/tutorial-status')
+            .then(response => response.json())
+            .then(data => {
+                if (data.tutorialClosed) {
+                    // Jika tutorial sudah ditutup, sembunyikan card dan tampilkan tombol "Munculkan Informasi"
+                    document.getElementById('tutorial-section').style.display = 'none';
+                    document.getElementById('showTutorialBtn').style.display = 'block';
+                } else {
+                    // Jika tutorial masih terbuka, tampilkan card tutorial
+                    document.getElementById('tutorial-section').style.display = 'block';
+                    document.getElementById('showTutorialBtn').style.display = 'none';
+                }
+            });
+    });
+
+    // Fungsi untuk menutup tutorial dan menyimpan statusnya
+    function closeTutorial() {
+        // Menyimpan status tutorial ke file JSON
+        fetch('/set-tutorial-status', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                },
+                body: JSON.stringify({
+                    tutorialClosed: true
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Sembunyikan card tutorial dan tampilkan tombol "Munculkan Informasi"
+                document.getElementById('tutorial-section').style.display = 'none';
+                document.getElementById('showTutorialBtn').style.display = 'block';
+            });
+    }
+
+    // Fungsi untuk menampilkan tutorial kembali
+    function toggleTutorial() {
+        // Menyimpan status tutorial ke file JSON
+        fetch('/set-tutorial-status', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                },
+                body: JSON.stringify({
+                    tutorialClosed: false
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Tampilkan card tutorial dan sembunyikan tombol
+                document.getElementById('tutorial-section').style.display = 'block';
+                document.getElementById('showTutorialBtn').style.display = 'none';
+            });
+    }
+</script>
+
+
+
+<script>
+    $(document).ready(function() {
+        // Event listener untuk shortcut keyboard
+        $(document).on('keydown', function(e) {
+            if (e.altKey) {
+                switch (e.key.toLowerCase()) {
+                    case 'p': // Alt + P untuk Pesanan Penjualan
+                        $('#status-pesanan').prop('checked', true).focus();
+                        break;
+                    case 'l': // Alt + L untuk Lunas
+                        $('#status-lunas').prop('checked', true).focus();
+                        break;
+                    case 'b': // Alt + B untuk Belum Lunas
+                        $('#status-belum-lunas').prop('checked', true).focus();
+                        break;
+                    case 'n': // Alt + D untuk Pending
+                        $('#status-pending').prop('checked', true).focus();
+                        break;
+                }
+            }
+        });
+    });
+</script>
 
 <!-- Pindahkan Script di Sini -->
 <script>
@@ -760,8 +911,16 @@
 
 
 <script>
-    $(document).ready(function() {
-        $('#form-edit-order').submit(function(e) {
+    $(document).ready(function () {
+        // Tambahkan listener untuk shortcut F8
+        $(document).on('keydown', function (e) {
+            if (e.key === 'F8') {
+                e.preventDefault(); // Mencegah aksi default tombol F8
+                $('#form-edit-order').submit(); // Trigger form submit
+            }
+        });
+
+        $('#form-edit-order').submit(function (e) {
             e.preventDefault();
 
             const tombolSave = $('#btn-save-order'); // Tombol Simpan
@@ -845,7 +1004,7 @@
                 data: formData,
                 processData: false,
                 contentType: false,
-                success: function(response) {
+                success: function (response) {
                     // Kembalikan status tombol dan ikon setelah sukses
                     tombolSave.prop('disabled', false); // Aktifkan tombol kembali
                     iconSave.removeClass('fas fa-spinner fa-spin').addClass('fas fa-save'); // Kembalikan ikon semula
@@ -854,7 +1013,7 @@
                         window.location.href = "{{ route('orders.index') }}"; // Redirect setelah sukses
                     });
                 },
-                error: function(xhr) {
+                error: function (xhr) {
                     // Kembalikan status tombol dan ikon setelah error
                     tombolSave.prop('disabled', false); // Aktifkan tombol kembali
                     iconSave.removeClass('fas fa-spinner fa-spin').addClass('fas fa-save'); // Kembalikan ikon semula

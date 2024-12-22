@@ -89,7 +89,7 @@ class MenuItemsController extends Controller
             $query->where('name', 'like', '%' . $search . '%');
         }
     
-        $data_menu_item = $query->paginate(20);
+        $data_menu_item = $query->paginate(30);
     
         return view('menu_item.index', compact('data_menu_item', 'title', 'subtitle'));
     }

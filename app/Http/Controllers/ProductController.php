@@ -51,21 +51,24 @@ class ProductController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index(Request $request): View
-    {
-        $title = "Halaman Produk";
-        $subtitle = "Menu Produk";
+   public function index(Request $request): View
+{
+    $title = "Halaman Produk";
+    $subtitle = "Menu Produk";
 
-        // Ambil data untuk dropdown select
-        $data_units = Unit::all(); // Ambil semua kategori perkembangan
-        $data_categories = Category::all(); // Ambil semua stimuli
-        $data_products = Product::all(); // Ambil semua produk
-        $data_customer_categories = CustomerCategory::all();
+    // Ambil data hanya yang diperlukan untuk dropdown dan tabel
+    $data_units = Unit::select('id', 'name')->get(); // Ambil hanya kolom penting
+    $data_categories = Category::select('id', 'name')->get();
+    $data_customer_categories = CustomerCategory::select('id', 'name')->get();
 
+    // Optimasi query produk dengan eager loading
+    $data_products = Product::with(['category:id,name', 'unit:id,name']) // Load relasi hanya kolom yang dibutuhkan
+                            ->select('id', 'name', 'code_product', 'barcode', 'description', 'purchase_price', 'cost_price', 'stock', 'image', 'category_id', 'unit_id') // Pilih kolom spesifik
+                            ->get();
 
-        // Kirim semua data ke view
-        return view('product.index', compact('data_products', 'data_units', 'data_categories', 'data_customer_categories', 'title', 'subtitle'));
-    }
+    // Kirim data ke view
+    return view('product.index', compact('data_products', 'data_units', 'data_categories', 'data_customer_categories', 'title', 'subtitle'));
+}
 
 
     public function getProductPrice(Request $request)

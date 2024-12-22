@@ -50,15 +50,14 @@
                             @endif
 
                             <!-- Data Table -->
-                            <table id="scroll_hor"
-                                class="table border table-striped table-bordered display nowrap"
-                                style="width: 100%">
+                            <table id="scroll_hor" class="table border table-striped table-bordered display nowrap" style="width: 100%">
                                 <thead>
                                     <tr>
                                         <th>No</th>
                                         <th>Nama</th>
                                         <th>Email</th>
                                         <th>Roles</th>
+                                        <th>Gambar</th>
                                         <th width="280px">Action</th>
                                     </tr>
                                 </thead>
@@ -72,6 +71,11 @@
                                             @foreach($user->getRoleNames() as $role)
                                             <label class="badge bg-success">{{ $role }}</label>
                                             @endforeach
+                                        </td>
+                                        <td>
+                                            <a href="/upload/users/{{ $user->image }}" target="_blank">
+                                                <img style="max-width:50px; max-height:50px" src="/upload/users/{{ $user->image }}" alt="">
+                                            </a>
                                         </td>
                                         <td>
                                             <!-- Show Button -->
@@ -88,6 +92,7 @@
 
                                             <!-- Delete Button -->
                                             @can('user-delete')
+                                            @if ($user->id !== auth()->id())
                                             <button type="button" class="btn btn-danger btn-sm" onclick="confirmDelete({{ $user->id }})">
                                                 <i class="fa fa-trash"></i> Delete
                                             </button>
@@ -95,12 +100,14 @@
                                                 @csrf
                                                 @method('DELETE')
                                             </form>
+                                            @endif
                                             @endcan
                                         </td>
                                     </tr>
                                     @endforeach
                                 </tbody>
                             </table>
+
                         </div>
                     </div>
                 </div>

@@ -27,6 +27,36 @@
         </div>
     </div>
 
+    <div class="card-body">
+        <!-- Section Tutorial -->
+        <div class="card mb-1" id="tutorial-section">
+            <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
+                <h5 class="card-title mb-0" style="color: white;">Informasi Halaman Penjualan</h5>
+                <!-- Tombol Close -->
+                <button type="button" class="btn-close btn-close-white" aria-label="Close" onclick="closeTutorial()"></button>
+            </div>
+            <div class="card-body">
+                <ol>
+                    <li>
+                        Pilih <b>Tambah Data</b> untuk mengisi penjualan baru.
+                    </li>
+                    <li>
+                        Untuk Penjualan yang <b>statusnya Lunas</b> maka tidak bisa diedit dan status selain itu bisa untuk diedit kembali
+                    </li>
+                    <li>
+                        Setiap transaksi yang <b>dihapus/delete</b> maka dia akan mengurangi kembali amount/saldo dari Kas dan menambah kembali stok dari produk terkait
+                    </li>
+                </ol>
+
+            </div>
+        </div>
+        <!-- End of Section Tutorial -->
+    </div>
+
+    <div class="card">
+        <button class="btn btn-primary" id="showTutorialBtn" onclick="toggleTutorial()"><i class="fa fa-eye"></i> Lihat Informasi</button>
+    </div>
+
     <section class="datatables">
         <div class="row">
             <div class="col-12">
@@ -128,7 +158,12 @@
 
                                             <!-- Tombol Aksi Cetak Invoice -->
                                             <a class="btn btn-info btn-sm" target="_blank" href="{{ route('orders.print_invoice', $p->id) }}">
-                                                <i class="fa fa-print"></i> Print Invoice
+                                                <i class="fa fa-file"></i> Print Invoice
+                                            </a>
+
+                                            <!-- Tombol Aksi Cetak Invoice -->
+                                            <a class="btn btn-danger btn-sm" target="_blank" href="{{ route('orders.print_struk', $p->id) }}">
+                                                <i class="fa fa-print"></i> Print Struk
                                             </a>
                                         </td>
                                     </tr>
@@ -146,6 +181,9 @@
 @endsection
 
 @push('script')
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="{{ asset('template/back/dist/libs/datatables.net/js/jquery.dataTables.min.js') }}"></script>
+<script src="{{ asset('template/back/dist/js/datatable/datatable-basic.init.js') }}"></script>
 <script>
     function confirmDelete(roleId) {
         Swal.fire({
@@ -164,7 +202,68 @@
         });
     }
 </script>
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-<script src="{{ asset('template/back/dist/libs/datatables.net/js/jquery.dataTables.min.js') }}"></script>
-<script src="{{ asset('template/back/dist/js/datatable/datatable-basic.init.js') }}"></script>
+
+
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        // Ambil status tutorial dari server
+        fetch('/tutorial-status')
+            .then(response => response.json())
+            .then(data => {
+                if (data.tutorialClosed) {
+                    // Jika tutorial sudah ditutup, sembunyikan card dan tampilkan tombol "Munculkan Informasi"
+                    document.getElementById('tutorial-section').style.display = 'none';
+                    document.getElementById('showTutorialBtn').style.display = 'block';
+                } else {
+                    // Jika tutorial masih terbuka, tampilkan card tutorial
+                    document.getElementById('tutorial-section').style.display = 'block';
+                    document.getElementById('showTutorialBtn').style.display = 'none';
+                }
+            });
+    });
+
+    // Fungsi untuk menutup tutorial dan menyimpan statusnya
+    function closeTutorial() {
+        // Menyimpan status tutorial ke file JSON
+        fetch('/set-tutorial-status', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                },
+                body: JSON.stringify({
+                    tutorialClosed: true
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Sembunyikan card tutorial dan tampilkan tombol "Munculkan Informasi"
+                document.getElementById('tutorial-section').style.display = 'none';
+                document.getElementById('showTutorialBtn').style.display = 'block';
+            });
+    }
+
+    // Fungsi untuk menampilkan tutorial kembali
+    function toggleTutorial() {
+        // Menyimpan status tutorial ke file JSON
+        fetch('/set-tutorial-status', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                },
+                body: JSON.stringify({
+                    tutorialClosed: false
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Tampilkan card tutorial dan sembunyikan tombol
+                document.getElementById('tutorial-section').style.display = 'block';
+                document.getElementById('showTutorialBtn').style.display = 'none';
+            });
+    }
+</script>
+
 @endpush

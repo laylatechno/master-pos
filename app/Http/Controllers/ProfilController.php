@@ -110,6 +110,7 @@ class ProfilController extends Controller
                 'no_wa' => 'required|numeric',
                 'email' => 'required|email',
                 'logo' => 'image|mimes:jpeg,png,jpg,gif|max:6048',
+                'logo_dark' => 'image|mimes:jpeg,png,jpg,gif|max:6048',
                 'favicon' => 'image|mimes:jpeg,png,jpg,gif|max:6048',
                 'banner' => 'image|mimes:jpeg,png,jpg,gif|max:6048',
             ], [
@@ -130,6 +131,9 @@ class ProfilController extends Controller
                 'banner.image' => 'Favicon harus dalam format jpeg, jpg, atau png',
                 'banner.mimes' => 'Format banner harus jpeg, jpg, atau png',
                 'banner.max' => 'Ukuran banner tidak boleh lebih dari 6 MB',
+                'logo_dark.image' => 'Favicon harus dalam format jpeg, jpg, atau png',
+                'logo_dark.mimes' => 'Format logo dark harus jpeg, jpg, atau png',
+                'logo_dark.max' => 'Ukuran logo dark tidak boleh lebih dari 6 MB',
             ]);
 
             // Ambil data profil yang akan diupdate
@@ -206,6 +210,75 @@ class ProfilController extends Controller
                     }
                 } else {
                     // Tipe MIME logo tidak didukung, tangani kasus ini sesuai kebutuhan Anda
+                }
+            }
+
+            if ($request->hasFile('logo_dark')) {
+                // Hapus logo_dark sebelumnya jika ada
+                $oldPictureFileName = $profil->logo_dark;
+                if ($oldPictureFileName) {
+                    $oldFilePath = public_path('upload/profil/' . $oldPictureFileName);
+                    if (file_exists($oldFilePath)) {
+                        unlink($oldFilePath);
+                    }
+                }
+
+                $image = $request->file('logo_dark');
+                $destinationPath = 'upload/profil/';
+
+                // Mengambil nama file asli dan ekstensinya
+                $originalFileName = $image->getClientOriginalName();
+
+                // Membaca tipe MIME dari file logo_dark
+                $imageMimeType = $image->getMimeType();
+
+                // Menyaring hanya tipe MIME logo_dark yang didukung (misalnya, image/jpeg, image/png, dll.)
+                if (strpos($imageMimeType, 'image/') === 0) {
+                    // Menggabungkan waktu dengan nama file asli
+                    $imageName = date('YmdHis') . '_' . str_replace(' ', '_', $originalFileName);
+
+                    // Simpan logo_dark asli ke tujuan yang diinginkan
+                    $image->move($destinationPath, $imageName);
+
+                    // Path logo_dark asli
+                    $sourceImagePath = public_path($destinationPath . $imageName);
+
+                    // Path untuk menyimpan logo_dark WebP
+                    $webpImagePath = $destinationPath . pathinfo($imageName, PATHINFO_FILENAME) . '.webp';
+
+                    // Membaca logo_dark asli dan mengonversinya ke WebP jika tipe MIME-nya didukung
+                    switch ($imageMimeType) {
+                        case 'image/jpeg':
+                            $sourceImage = @imagecreatefromjpeg($sourceImagePath);
+                            break;
+                        case 'image/png':
+                            $sourceImage = @imagecreatefrompng($sourceImagePath);
+                            break;
+                            // Tambahkan jenis MIME lain jika diperlukan
+                        default:
+                            // Jenis MIME tidak didukung, tangani kasus ini sesuai kebutuhan Anda
+                            // Misalnya, tampilkan pesan kesalahan atau lakukan tindakan yang sesuai
+                            break;
+                    }
+
+                    // Jika logo_dark asli berhasil dibaca
+                    if ($sourceImage !== false) {
+                        // Membuat logo_dark baru dalam format WebP
+                        imagewebp($sourceImage, $webpImagePath);
+
+                        // Hapus logo_dark asli dari memori
+                        imagedestroy($sourceImage);
+
+                        // Hapus file asli setelah konversi selesai
+                        @unlink($sourceImagePath);
+
+                        // Simpan hanya nama file logo_dark ke dalam atribut profil
+                        $input['logo_dark'] = pathinfo($imageName, PATHINFO_FILENAME) . '.webp';
+                    } else {
+                        // Gagal membaca logo_dark asli, tangani kasus ini sesuai kebutuhan Anda
+                    }
+                } else {
+                    // Tipe MIME logo_dark tidak didukung, tangani kasus ini sesuai kebutuhan Anda
                 }
             }
 
@@ -348,6 +421,110 @@ class ProfilController extends Controller
                     // Tipe MIME banner tidak didukung, tangani kasus ini sesuai kebutuhan Anda
                 }
             }
+
+            if ($request->hasFile('bg_login')) {
+                // Hapus bg_login sebelumnya jika ada
+                $oldPictureFileName = $profil->bg_login;
+                if ($oldPictureFileName) {
+                    $oldFilePath = public_path('upload/profil/' . $oldPictureFileName);
+                    if (file_exists($oldFilePath)) {
+                        unlink($oldFilePath);
+                    }
+                }
+
+                $image = $request->file('bg_login');
+                $destinationPath = 'upload/profil/';
+
+                // Mengambil nama file asli dan ekstensinya
+                $originalFileName = $image->getClientOriginalName();
+
+                // Membaca tipe MIME dari file bg_login
+                $imageMimeType = $image->getMimeType();
+
+                // Menyaring hanya tipe MIME bg_login yang didukung (misalnya, image/jpeg, image/png, dll.)
+                if (strpos($imageMimeType, 'image/') === 0) {
+                    // Menggabungkan waktu dengan nama file asli
+                    $imageName = date('YmdHis') . '_' . str_replace(' ', '_', $originalFileName);
+
+                    // Simpan bg_login asli ke tujuan yang diinginkan
+                    $image->move($destinationPath, $imageName);
+
+                    // Path bg_login asli
+                    $sourceImagePath = public_path($destinationPath . $imageName);
+
+                    // Path untuk menyimpan bg_login WebP
+                    $webpImagePath = $destinationPath . pathinfo($imageName, PATHINFO_FILENAME) . '.webp';
+
+                    // Membaca bg_login asli dan mengonversinya ke WebP jika tipe MIME-nya didukung
+                    switch ($imageMimeType) {
+                        case 'image/jpeg':
+                            $sourceImage = @imagecreatefromjpeg($sourceImagePath);
+                            break;
+                        case 'image/png':
+                            $sourceImage = @imagecreatefrompng($sourceImagePath);
+                            break;
+                            // Tambahkan jenis MIME lain jika diperlukan
+                        default:
+                            // Jenis MIME tidak didukung, tangani kasus ini sesuai kebutuhan Anda
+                            // Misalnya, tampilkan pesan kesalahan atau lakukan tindakan yang sesuai
+                            break;
+                    }
+
+                    // Jika bg_login asli berhasil dibaca
+                    if ($sourceImage !== false) {
+                        // Membuat bg_login baru dalam format WebP
+                        imagewebp($sourceImage, $webpImagePath);
+
+                        // Hapus bg_login asli dari memori
+                        imagedestroy($sourceImage);
+
+                        // Hapus file asli setelah konversi selesai
+                        @unlink($sourceImagePath);
+
+                        // Simpan hanya nama file bg_login ke dalam atribut profil
+                        $input['bg_login'] = pathinfo($imageName, PATHINFO_FILENAME) . '.webp';
+                    } else {
+                        // Gagal membaca bg_login asli, tangani kasus ini sesuai kebutuhan Anda
+                    }
+                } else {
+                    // Tipe MIME bg_login tidak didukung, tangani kasus ini sesuai kebutuhan Anda
+                }
+            }
+
+
+            // Membuat profil baru dan mendapatkan data pengguna yang baru dibuat
+            $profil = Profil::findOrFail($id);
+
+            // Mendapatkan ID pengguna yang sedang login
+            $loggedInProfilId = Auth::id();
+
+            // Simpan log histori untuk operasi Update dengan profil_id yang sedang login
+            $this->simpanLogHistori('Update', 'Profil', $profil->id, $loggedInProfilId, json_encode($profil), json_encode($input));
+
+            $profil->update($input);
+            // Set flash message untuk notifikasi sukses
+            return redirect()->back()
+                ->with('success', 'Data berhasil diupdate');
+        } catch (ValidationException $e) {
+            return redirect()->back()->withErrors($e->validator->errors())->withInput();
+        }
+    }
+
+    public function update_setting(Request $request, $id)
+    {
+        try {
+            // $request->validate([
+              
+            // ], [
+              
+            // ]);
+
+            // Ambil data profil yang akan diupdate
+            $profil = Profil::findOrFail($id);
+
+            // Setel data yang akan diupdate
+            $input = $request->all();
+
 
 
             // Membuat profil baru dan mendapatkan data pengguna yang baru dibuat

@@ -204,7 +204,7 @@
 
                                                 <div class="row">
                                                     <!-- Logo -->
-                                                    <div class="col-lg-12">
+                                                    <div class="col-lg-4">
                                                         <div class="mb-4">
                                                             <label for="logo" class="form-label fw-semibold">Logo</label>
                                                             @if ($profil->logo && file_exists(public_path('upload/profil/' . $profil->logo)))
@@ -271,8 +271,71 @@
                                                         </div>
                                                     </div>
 
+                                                     <!-- Logo Dark -->
+                                                     <div class="col-lg-4">
+                                                        <div class="mb-4">
+                                                            <label for="logo_dark"
+                                                                class="form-label fw-semibold">Logo Dark</label>
+                                                            @if ($profil->logo_dark && file_exists(public_path('upload/profil/' . $profil->logo_dark)))
+                                                            <div class="mb-2">
+                                                                <a href="{{ asset('upload/profil/' . $profil->logo_dark) }}"
+                                                                    target="_blank">
+                                                                    <img src="{{ asset('upload/profil/' . $profil->logo_dark) }}"
+                                                                        alt="Logo Dark" class="img-thumbnail"
+                                                                        style="max-height: 50px;">
+                                                                </a>
+                                                            </div>
+                                                            @endif
+                                                            <input type="file" class="form-control" id="logo_dark"
+                                                                name="logo_dark" onchange="previewImageLogoDark()">
+
+                                                            <canvas id="preview_canvas_logo_dark"
+                                                                style="display: none; max-width: 100%; margin-top: 10px;"></canvas>
+                                                            <img id="preview_image" src="#" alt="Preview Logo"
+                                                                style="display: none; max-width: 100%; margin-top: 10px;">
+                                                            <script>
+                                                                function previewImageLogoDark() {
+                                                                    var previewCanvasLogoDark = document.getElementById('preview_canvas_logo_dark');
+                                                                    var previewImageLogoDark = document.getElementById('preview_image');
+                                                                    var fileInput = document.getElementById('logo_dark');
+                                                                    var file = fileInput.files[0];
+                                                                    var reader = new FileReader();
+
+                                                                    reader.onload = function(e) {
+                                                                        var img = new Image();
+                                                                        img.src = e.target.result;
+
+                                                                        img.onload = function() {
+                                                                            var canvasContext = previewCanvasLogoDark.getContext('2d');
+                                                                            var maxWidth = 50; // Max width untuk pratinja logo_dark
+
+                                                                            var scaleFactor = maxWidth / img.width;
+                                                                            var newHeight = img.height * scaleFactor;
+
+                                                                            previewCanvasLogoDark.width = maxWidth;
+                                                                            previewCanvasLogoDark.height = newHeight;
+
+                                                                            canvasContext.drawImage(img, 0, 0, maxWidth, newHeight);
+
+                                                                            // Menampilkan pratinja logo_dark setelah diperkecil
+                                                                            previewCanvasLogoDark.style.display = 'block';
+                                                                            previewImage.style.display = 'none';
+                                                                        };
+                                                                    };
+
+                                                                    if (file) {
+                                                                        reader.readAsDataURL(file); // Membaca file yang dipilih sebagai URL data
+                                                                    } else {
+                                                                        previewImage.src = '';
+                                                                        previewCanvasLogoDark.style.display = 'none'; // Menyembunyikan pratinja gambar jika tidak ada file yang dipilih
+                                                                    }
+                                                                }
+                                                            </script>
+                                                        </div>
+                                                    </div>
+
                                                     <!-- Favicon -->
-                                                    <div class="col-lg-12">
+                                                    <div class="col-lg-4">
                                                         <div class="mb-4">
                                                             <label for="favicon"
                                                                 class="form-label fw-semibold">Favicon</label>
@@ -334,8 +397,10 @@
                                                         </div>
                                                     </div>
 
+                                                    
+
                                                     <!-- Banner -->
-                                                    <div class="col-lg-12">
+                                                    <div class="col-lg-6">
                                                         <div class="mb-4">
                                                             <label for="banner"
                                                                 class="form-label fw-semibold">Banner</label>
@@ -370,6 +435,68 @@
                                                                         img.onload = function() {
                                                                             var canvasContext = previewCanvas3.getContext('2d');
                                                                             var maxWidth = 150; // Max width untuk pratinja banner
+
+                                                                            var scaleFactor = maxWidth / img.width;
+                                                                            var newHeight = img.height * scaleFactor;
+
+                                                                            previewCanvas3.width = maxWidth;
+                                                                            previewCanvas3.height = newHeight;
+
+                                                                            canvasContext.drawImage(img, 0, 0, maxWidth, newHeight);
+
+                                                                            // Menampilkan pratinja favicon setelah diperkecil
+                                                                            previewCanvas3.style.display = 'block';
+                                                                            previewImage.style.display = 'none';
+                                                                        };
+                                                                    };
+
+                                                                    if (file) {
+                                                                        reader.readAsDataURL(file); // Membaca file yang dipilih sebagai URL data
+                                                                    } else {
+                                                                        previewImage.src = '';
+                                                                        previewCanvas3.style.display = 'none'; // Menyembunyikan pratinja gambar jika tidak ada file yang dipilih
+                                                                    }
+                                                                }
+                                                            </script>
+                                                        </div>
+                                                    </div>
+
+                                                     <!-- Background Login -->
+                                                     <div class="col-lg-6">
+                                                        <div class="mb-4">
+                                                            <label for="bg_login"
+                                                                class="form-label fw-semibold">Background Login</label>
+                                                            @if ($profil->bg_login && file_exists(public_path('upload/profil/' . $profil->bg_login)))
+                                                            <div class="mb-2">
+                                                                <a href="{{ asset('upload/profil/' . $profil->bg_login) }}"
+                                                                    target="_blank">
+                                                                    <img src="{{ asset('upload/profil/' . $profil->bg_login) }}"
+                                                                        alt="Background Login" class="img-thumbnail"
+                                                                        style="max-height: 150px;">
+                                                                </a>
+                                                            </div>
+                                                            @endif
+                                                            <input type="file" class="form-control" id="bg_login"
+                                                                name="bg_login" onchange="previewImageBgLogin()">
+                                                            <canvas id="preview_canvas_bg_login"
+                                                                style="display: none; max-width: 100%; margin-top: 10px;"></canvas>
+                                                            <img id="preview_image_bg_login" src="#" alt="Preview Bg Login"
+                                                                style="display: none; max-width: 100%; margin-top: 10px;">
+                                                            <script>
+                                                                function previewImageBgLogin() {
+                                                                    var previewCanvas3 = document.getElementById('preview_canvas_bg_login');
+                                                                    var previewImageBgLogin = document.getElementById('preview_image_bg_login');
+                                                                    var fileInput = document.getElementById('bg_login');
+                                                                    var file = fileInput.files[0];
+                                                                    var reader = new FileReader();
+
+                                                                    reader.onload = function(e) {
+                                                                        var img = new Image();
+                                                                        img.src = e.target.result;
+
+                                                                        img.onload = function() {
+                                                                            var canvasContext = previewCanvas3.getContext('2d');
+                                                                            var maxWidth = 150; // Max width untuk pratinja bg_login
 
                                                                             var scaleFactor = maxWidth / img.width;
                                                                             var newHeight = img.height * scaleFactor;
