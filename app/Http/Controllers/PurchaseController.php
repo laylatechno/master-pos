@@ -6,6 +6,7 @@ use App\Models\Cash;
 use App\Models\LogHistori;
 use App\Models\Product;
 use App\Models\Profil;
+use App\Models\Profit;
 use App\Models\Purchase;
 use App\Models\PurchaseItem;
 use App\Models\Supplier;
@@ -230,7 +231,17 @@ class PurchaseController extends Controller
                     'message' => 'Cash ID tidak ditemukan. Silakan periksa input data Anda.'
                 ], 400);  // 400 adalah kode status HTTP untuk permintaan yang salah
             }
+
+            // Simpan data ke tabel profit_loss jika status adalah Lunas
+            $profitLoss = new Profit();
+            $profitLoss->cash_id = $request->cash_id;
+            $profitLoss->purchase_id = $purchase->id;
+            $profitLoss->date = $purchase->purchase_date;
+            $profitLoss->category = 'kurang';
+            $profitLoss->amount = $purchase->total_cost;
+            $profitLoss->save();
         }
+
 
 
         // Mendapatkan ID user yang sedang login
@@ -581,6 +592,21 @@ class PurchaseController extends Controller
         $purchase->update(['total_cost' => $total_cost]);
 
         $newData = $purchase->refresh()->toArray();
+
+
+
+         // Simpan ke tabel profit_loss jika status adalah "Lunas"
+         if ($purchase->status === 'Lunas') {
+            Profit::updateOrCreate(
+                ['purchase_id' => $purchase->id],
+                [
+                    'cash_id' => $purchase->cash_id,
+                    'date' => $purchase->purchase_date,
+                    'category' => 'kurang',
+                    'amount' => $purchase->total_cost,
+                ]
+            );
+        }
 
         // Simpan log histori
         $loggedInUserId = Auth::id();

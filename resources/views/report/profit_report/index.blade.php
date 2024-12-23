@@ -153,9 +153,9 @@
                                                     @if($entry->transaction_id)
                                                     {{ $entry->transaction->name ?? 'N/A' }} <!-- Menampilkan nama transaksi -->
                                                     @elseif($entry->order_id)
-                                                    Penjualan - {{ $entry->order->description ?? 'N/A' }} <!-- Menampilkan 'Penjualan' dan deskripsi dari order -->
+                                                    Penjualan - {{ $entry->order->no_order }} - {{ $entry->order->description ?? 'N/A' }} <!-- Menampilkan 'Penjualan' dan deskripsi dari order -->
                                                     @elseif($entry->purchase_id)
-                                                    Pembelian - {{ $entry->purchase->description ?? 'N/A' }} <!-- Menampilkan 'Pembelian' dan deskripsi dari purchase -->
+                                                    Pembelian - {{ $entry->purchase->no_purchase }} - {{ $entry->purchase->description ?? 'N/A' }} <!-- Menampilkan 'Pembelian' dan deskripsi dari purchase -->
                                                     @else
                                                     'N/A' <!-- Jika tidak ada yang terisi -->
                                                     @endif

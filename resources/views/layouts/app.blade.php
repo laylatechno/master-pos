@@ -16,12 +16,11 @@
 
     <!-- Core Css -->
     <link id="themeColors" rel="stylesheet" href="{{ asset('template/back') }}/dist/css/styles.css" />
+    
 
     <title>{{ $title }}</title>
     <!-- Owl Carousel  -->
-    <link rel="stylesheet" href="{{ asset('template/back') }}/dist/libs/owl.carousel/dist/assets/owl.carousel.min.css">
-
-    <!-- <link rel="stylesheet" href="{{ asset('template/back') }}/dist/libs/datatables.net-bs5/css/dataTables.bootstrap5.min.css"> -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     @stack('css')
 
@@ -591,7 +590,7 @@
 
 
 
-
+    
     <script src="{{ asset('template/back') }}/dist/js/vendor.min.js"></script>
     <!-- Import Js Files -->
     <script src="{{ asset('template/back') }}/dist/libs/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
@@ -602,7 +601,6 @@
 
     <!-- solar icons -->
     <script src="https://cdn.jsdelivr.net/npm/iconify-icon@1.0.8/dist/iconify-icon.min.js"></script>
-    <script src="https://bootstrapdemos.adminmart.com/modernize/dist/assets/libs/owl.carousel/dist/owl.carousel.min.js"></script>
 
     <script>
         $('.sidebar-link.has-arrow').on('click', function() {

@@ -7,6 +7,7 @@ use App\Models\LogHistori;
 use App\Models\Transaction;
 use App\Models\Category;
 use App\Models\CustomerCategory;
+use App\Models\Profit;
 use App\Models\TransactionCategory;
 use App\Models\TransactionPrice;
 use App\Models\Unit;
@@ -222,6 +223,18 @@ class TransactionController extends Controller
             $loggedInUserId = Auth::id();
             $this->simpanLogHistori('Create', 'Transaksi', $transaction->id, $loggedInUserId, null, json_encode($transaction));
 
+
+            // Simpan ke tabel profit_loss
+            $profitLoss = new Profit();
+            $profitLoss->cash_id = $transaction->cash_id;
+            $profitLoss->transaction_id = $transaction->id;
+            $profitLoss->date = $transaction->date;
+            $profitLoss->amount = $transaction->amount;
+            $profitLoss->category = $transactionCategory->parent_type === 'tambah' ? 'tambah' : 'kurang';
+            $profitLoss->save();
+
+
+
             DB::commit();
 
             return redirect()->route('transactions.index')
@@ -314,150 +327,150 @@ class TransactionController extends Controller
      * @param  \App\Models\Transactions  $transaction
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id): RedirectResponse
-    {
-        $validator = Validator::make($request->all(), [
-            'name' => 'required',
-            'transaction_category_id' => 'required',
-            'cash_id' => 'required',
-            'amount' => 'required',
-            'image' => 'nullable|image|mimes:jpeg,jpg,png|max:4096',
-        ], [
-            'name.required' => 'Nama wajib diisi.',
-            'transaction_category_id.required' => 'Kategori wajib diisi.',
-            'cash_id.required' => 'Kas wajib diisi.',
-            'amount.required' => 'Jumlah wajib diisi.',
-            'image.image' => 'Gambar harus dalam format jpeg, jpg, atau png',
-            'image.mimes' => 'Format gambar harus jpeg, jpg, atau png',
-            'image.max' => 'Ukuran gambar tidak boleh lebih dari 4 MB',
-        ]);
+    // public function update(Request $request, $id): RedirectResponse
+    // {
+    //     $validator = Validator::make($request->all(), [
+    //         'name' => 'required',
+    //         'transaction_category_id' => 'required',
+    //         'cash_id' => 'required',
+    //         'amount' => 'required',
+    //         'image' => 'nullable|image|mimes:jpeg,jpg,png|max:4096',
+    //     ], [
+    //         'name.required' => 'Nama wajib diisi.',
+    //         'transaction_category_id.required' => 'Kategori wajib diisi.',
+    //         'cash_id.required' => 'Kas wajib diisi.',
+    //         'amount.required' => 'Jumlah wajib diisi.',
+    //         'image.image' => 'Gambar harus dalam format jpeg, jpg, atau png',
+    //         'image.mimes' => 'Format gambar harus jpeg, jpg, atau png',
+    //         'image.max' => 'Ukuran gambar tidak boleh lebih dari 4 MB',
+    //     ]);
 
-        if ($validator->fails()) {
-            return redirect()->back()
-                ->withErrors($validator)
-                ->withInput();
-        }
+    //     if ($validator->fails()) {
+    //         return redirect()->back()
+    //             ->withErrors($validator)
+    //             ->withInput();
+    //     }
 
-        DB::beginTransaction();
+    //     DB::beginTransaction();
 
-        try {
-            // Temukan transaksi berdasarkan ID
-            $transaction = Transaction::find($id);
-            if (!$transaction) {
-                return redirect()->back()
-                    ->withErrors(['transaction' => 'Transaksi tidak ditemukan.'])
-                    ->withInput();
-            }
+    //     try {
+    //         // Temukan transaksi berdasarkan ID
+    //         $transaction = Transaction::find($id);
+    //         if (!$transaction) {
+    //             return redirect()->back()
+    //                 ->withErrors(['transaction' => 'Transaksi tidak ditemukan.'])
+    //                 ->withInput();
+    //         }
 
-            // Hilangkan separator titik dan koma dari amount
-            $cleanedAmount = str_replace([',', '.'], '', $request->amount);
-            // Konversi ke tipe data numerik
-            $numericAmount = (float) $cleanedAmount;
+    //         // Hilangkan separator titik dan koma dari amount
+    //         $cleanedAmount = str_replace([',', '.'], '', $request->amount);
+    //         // Konversi ke tipe data numerik
+    //         $numericAmount = (float) $cleanedAmount;
 
-            // Pastikan amount tetap berupa angka setelah pembersihan
-            if (!is_numeric($numericAmount) || $numericAmount <= 0) {
-                return redirect()->back()
-                    ->withErrors(['amount' => 'Jumlah tidak valid.'])
-                    ->withInput();
-            }
+    //         // Pastikan amount tetap berupa angka setelah pembersihan
+    //         if (!is_numeric($numericAmount) || $numericAmount <= 0) {
+    //             return redirect()->back()
+    //                 ->withErrors(['amount' => 'Jumlah tidak valid.'])
+    //                 ->withInput();
+    //         }
 
-            // Ambil data kategori transaksi
-            $transactionCategory = TransactionCategory::find($request->transaction_category_id);
-            if (!$transactionCategory) {
-                return redirect()->back()
-                    ->withErrors(['transaction_category_id' => 'Kategori transaksi tidak ditemukan.'])
-                    ->withInput();
-            }
+    //         // Ambil data kategori transaksi
+    //         $transactionCategory = TransactionCategory::find($request->transaction_category_id);
+    //         if (!$transactionCategory) {
+    //             return redirect()->back()
+    //                 ->withErrors(['transaction_category_id' => 'Kategori transaksi tidak ditemukan.'])
+    //                 ->withInput();
+    //         }
 
-            // Ambil data kas
-            $cash = Cash::find($request->cash_id);
-            if (!$cash) {
-                return redirect()->back()
-                    ->withErrors(['cash_id' => 'Kas tidak ditemukan.'])
-                    ->withInput();
-            }
+    //         // Ambil data kas
+    //         $cash = Cash::find($request->cash_id);
+    //         if (!$cash) {
+    //             return redirect()->back()
+    //                 ->withErrors(['cash_id' => 'Kas tidak ditemukan.'])
+    //                 ->withInput();
+    //         }
 
-            // Update saldo kas berdasarkan parent_type
-            if ($transactionCategory->parent_type === 'kurang') {
-                $cash->amount -= $numericAmount;
-            } elseif ($transactionCategory->parent_type === 'tambah') {
-                $cash->amount += $numericAmount;
-            }
+    //         // Update saldo kas berdasarkan parent_type
+    //         if ($transactionCategory->parent_type === 'kurang') {
+    //             $cash->amount -= $numericAmount;
+    //         } elseif ($transactionCategory->parent_type === 'tambah') {
+    //             $cash->amount += $numericAmount;
+    //         }
 
-            // Simpan perubahan saldo kas
-            $cash->save();
+    //         // Simpan perubahan saldo kas
+    //         $cash->save();
 
-            // Proses image jika ada file yang diupload
-            $data = $request->except(['image', 'amount']);
-            $data['amount'] = $numericAmount; // Gunakan amount yang sudah dibersihkan
+    //         // Proses image jika ada file yang diupload
+    //         $data = $request->except(['image', 'amount']);
+    //         $data['amount'] = $numericAmount; // Gunakan amount yang sudah dibersihkan
 
-            // Jika ada gambar baru
-            if ($image = $request->file('image')) {
-                // Hapus gambar lama jika ada
-                if ($transaction->image) {
-                    $oldImagePath = public_path('upload/transactions/' . $transaction->image);
-                    if (file_exists($oldImagePath)) {
-                        @unlink($oldImagePath); // Hapus gambar lama
-                    }
-                }
+    //         // Jika ada gambar baru
+    //         if ($image = $request->file('image')) {
+    //             // Hapus gambar lama jika ada
+    //             if ($transaction->image) {
+    //                 $oldImagePath = public_path('upload/transactions/' . $transaction->image);
+    //                 if (file_exists($oldImagePath)) {
+    //                     @unlink($oldImagePath); // Hapus gambar lama
+    //                 }
+    //             }
 
-                // Simpan gambar baru
-                $destinationPath = 'upload/transactions/';
-                $originalFileName = $image->getClientOriginalName();
-                $imageMimeType = $image->getMimeType();
+    //             // Simpan gambar baru
+    //             $destinationPath = 'upload/transactions/';
+    //             $originalFileName = $image->getClientOriginalName();
+    //             $imageMimeType = $image->getMimeType();
 
-                // Memastikan file adalah gambar
-                if (strpos($imageMimeType, 'image/') === 0) {
-                    $imageName = date('YmdHis') . '_' . str_replace(' ', '_', $originalFileName);
-                    $image->move($destinationPath, $imageName);
+    //             // Memastikan file adalah gambar
+    //             if (strpos($imageMimeType, 'image/') === 0) {
+    //                 $imageName = date('YmdHis') . '_' . str_replace(' ', '_', $originalFileName);
+    //                 $image->move($destinationPath, $imageName);
 
-                    $sourceImagePath = public_path($destinationPath . $imageName);
-                    $webpImagePath = $destinationPath . pathinfo($imageName, PATHINFO_FILENAME) . '.webp';
+    //                 $sourceImagePath = public_path($destinationPath . $imageName);
+    //                 $webpImagePath = $destinationPath . pathinfo($imageName, PATHINFO_FILENAME) . '.webp';
 
-                    // Mengubah gambar ke format webp
-                    switch ($imageMimeType) {
-                        case 'image/jpeg':
-                            $sourceImage = @imagecreatefromjpeg($sourceImagePath);
-                            break;
-                        case 'image/png':
-                            $sourceImage = @imagecreatefrompng($sourceImagePath);
-                            break;
-                        default:
-                            throw new \Exception('Tipe MIME tidak didukung.');
-                    }
+    //                 // Mengubah gambar ke format webp
+    //                 switch ($imageMimeType) {
+    //                     case 'image/jpeg':
+    //                         $sourceImage = @imagecreatefromjpeg($sourceImagePath);
+    //                         break;
+    //                     case 'image/png':
+    //                         $sourceImage = @imagecreatefrompng($sourceImagePath);
+    //                         break;
+    //                     default:
+    //                         throw new \Exception('Tipe MIME tidak didukung.');
+    //                 }
 
-                    // Jika gambar berhasil dibaca, konversi ke WebP dan hapus gambar asli
-                    if ($sourceImage !== false) {
-                        imagewebp($sourceImage, $webpImagePath);
-                        imagedestroy($sourceImage);
-                        @unlink($sourceImagePath); // Menghapus file gambar asli
-                        $data['image'] = pathinfo($imageName, PATHINFO_FILENAME) . '.webp';
-                    } else {
-                        throw new \Exception('Gagal membaca gambar asli.');
-                    }
-                } else {
-                    throw new \Exception('Tipe MIME gambar tidak didukung.');
-                }
-            }
+    //                 // Jika gambar berhasil dibaca, konversi ke WebP dan hapus gambar asli
+    //                 if ($sourceImage !== false) {
+    //                     imagewebp($sourceImage, $webpImagePath);
+    //                     imagedestroy($sourceImage);
+    //                     @unlink($sourceImagePath); // Menghapus file gambar asli
+    //                     $data['image'] = pathinfo($imageName, PATHINFO_FILENAME) . '.webp';
+    //                 } else {
+    //                     throw new \Exception('Gagal membaca gambar asli.');
+    //                 }
+    //             } else {
+    //                 throw new \Exception('Tipe MIME gambar tidak didukung.');
+    //             }
+    //         }
 
-            // Update transaksi
-            $transaction->update($data);
+    //         // Update transaksi
+    //         $transaction->update($data);
 
-            // Simpan log histori
-            $loggedInUserId = Auth::id();
-            $this->simpanLogHistori('Update', 'Transaksi', $transaction->id, $loggedInUserId, null, json_encode($transaction));
+    //         // Simpan log histori
+    //         $loggedInUserId = Auth::id();
+    //         $this->simpanLogHistori('Update', 'Transaksi', $transaction->id, $loggedInUserId, null, json_encode($transaction));
 
-            DB::commit();
+    //         DB::commit();
 
-            return redirect()->route('transactions.index')
-                ->with('success', 'Transaksi berhasil diperbarui.');
-        } catch (\Exception $e) {
-            DB::rollBack();
-            return redirect()->back()
-                ->withErrors(['error' => 'Terjadi kesalahan saat memperbarui transaksi: ' . $e->getMessage()])
-                ->withInput();
-        }
-    }
+    //         return redirect()->route('transactions.index')
+    //             ->with('success', 'Transaksi berhasil diperbarui.');
+    //     } catch (\Exception $e) {
+    //         DB::rollBack();
+    //         return redirect()->back()
+    //             ->withErrors(['error' => 'Terjadi kesalahan saat memperbarui transaksi: ' . $e->getMessage()])
+    //             ->withInput();
+    //     }
+    // }
 
 
 
@@ -511,6 +524,9 @@ class TransactionController extends Controller
                     @unlink($imagePath); // Menghapus file gambar
                 }
             }
+
+            // Hapus data terkait di tabel profit_loss
+            $transaction->profitLoss()->delete();
 
             // Hapus transaksi dari tabel transactions
             $transaction->delete();

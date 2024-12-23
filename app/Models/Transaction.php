@@ -13,4 +13,10 @@ class Transaction extends Model
     {
         return $this->belongsTo(TransactionCategory::class, 'transaction_category_id');
     }
+
+    public function profitLoss()
+{
+    return $this->hasOne(Profit::class, 'transaction_id');
+}
+
 }

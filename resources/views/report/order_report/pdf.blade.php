@@ -1,38 +1,51 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Laporan Penjualan</title>
+    <title>{{ $title }}</title>
+    <link rel="shortcut icon" type="image/png" href="/upload/profil/{{ $profil->favicon }}" />
+
     <style>
         body {
             font-family: Arial, sans-serif;
             font-size: 12px;
         }
+
         table {
             width: 100%;
             border-collapse: collapse;
             margin-bottom: 20px;
         }
-        table, th, td {
+
+        table,
+        th,
+        td {
             border: 1px solid black;
         }
-        th, td {
+
+        th,
+        td {
             padding: 8px;
             text-align: left;
         }
+
         .text-center {
             text-align: center;
         }
+
         .text-right {
             text-align: right;
         }
+
         .title {
             text-align: center;
             margin-bottom: 20px;
         }
     </style>
 </head>
+
 <body>
     <h3 class="title">{{ $title }}</h3>
     <p>Periode: {{ $startDate }} - {{ $endDate }}</p>
@@ -67,4 +80,5 @@
         </tbody>
     </table>
 </body>
+
 </html>

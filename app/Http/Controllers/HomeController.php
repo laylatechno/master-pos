@@ -2,6 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Customer;
+use App\Models\Product;
+use App\Models\User;
 
 class HomeController extends Controller
 {
@@ -24,6 +27,9 @@ class HomeController extends Controller
     {
         $title = "Halaman Dashboard";
         $subtitle = "Menu Dashboard";
-        return view('home', compact('title','subtitle'));
+        $totalProduk = Product::count();  
+        $totalPengguna = User::count();
+        $totalPelanggan = Customer::count();
+        return view('home', compact('title', 'subtitle', 'totalProduk','totalPengguna','totalPelanggan'));
     }
 }

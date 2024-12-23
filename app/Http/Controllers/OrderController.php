@@ -9,6 +9,7 @@ use App\Models\Profil;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Customer;
+use App\Models\Profit;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -62,7 +63,7 @@ class OrderController extends Controller
         $order = Order::with(['customer', 'user', 'orderItems.product'])->findOrFail($id);
 
         // Kirim data pembelian ke view
-        return view('order.print_invoice', compact('order','title','subtitle'));
+        return view('order.print_invoice', compact('order', 'title', 'subtitle'));
     }
 
 
@@ -74,7 +75,7 @@ class OrderController extends Controller
         $order = Order::with(['customer', 'user', 'orderItems.product'])->findOrFail($id);
 
         // Kirim data pembelian ke view
-        return view('order.print_struk', compact('order','title','subtitle'));
+        return view('order.print_struk', compact('order', 'title', 'subtitle'));
     }
 
 
@@ -245,6 +246,15 @@ class OrderController extends Controller
                     'message' => 'Cash ID tidak ditemukan. Silakan periksa input data Anda.'
                 ], 400);  // 400 adalah kode status HTTP untuk permintaan yang salah
             }
+
+            // Simpan data ke tabel profit_loss
+            $profitLoss = new Profit();
+            $profitLoss->cash_id = $order->cash_id;
+            $profitLoss->order_id = $order->id;
+            $profitLoss->date = $order->order_date;
+            $profitLoss->category = 'tambah';
+            $profitLoss->amount = $order->total_cost;
+            $profitLoss->save();
         }
 
 
@@ -319,26 +329,26 @@ class OrderController extends Controller
             'cash_id' => 'nullable|exists:cash,id',
             'image' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
         ]);
-    
+
         $order = Order::findOrFail($id);
         $oldData = $order->toArray();
-    
+
         // Proses upload gambar
         if ($image = $request->file('image')) {
             $destinationPath = 'upload/orders/';
             $originalFileName = $image->getClientOriginalName();
             $imageMimeType = $image->getMimeType();
-    
+
             if ($order->image && file_exists(public_path($destinationPath . $order->image))) {
                 @unlink(public_path($destinationPath . $order->image));
             }
-    
+
             $imageName = date('YmdHis') . '_' . str_replace(' ', '_', $originalFileName);
             $image->move(public_path($destinationPath), $imageName);
-    
+
             $sourceImagePath = public_path($destinationPath . $imageName);
             $webpImagePath = $destinationPath . pathinfo($imageName, PATHINFO_FILENAME) . '.webp';
-    
+
             switch ($imageMimeType) {
                 case 'image/jpeg':
                     $sourceImage = @imagecreatefromjpeg($sourceImagePath);
@@ -349,7 +359,7 @@ class OrderController extends Controller
                 default:
                     throw new \Exception('Tipe MIME tidak didukung.');
             }
-    
+
             if ($sourceImage !== false) {
                 imagewebp($sourceImage, public_path($webpImagePath));
                 imagedestroy($sourceImage);
@@ -359,7 +369,7 @@ class OrderController extends Controller
                 throw new \Exception('Gagal membaca gambar asli.');
             }
         }
-    
+
         $order->update([
             'description' => $request->description,
             'type_payment' => $request->type_payment,
@@ -375,18 +385,18 @@ class OrderController extends Controller
             'return_payment' => $request->return_payment,
             'user_id' => Auth::id(),
         ]);
-    
+
         // Update atau tambahkan order item
         $newProductIds = $request->product_id;
         $existingItems = $order->orderItems()->get();
-    
+
         foreach ($newProductIds as $key => $productId) {
             $quantity = $request->quantity[$key];
             $order_price = str_replace(['.', ','], '', $request->order_price[$key]);
             $total_price = $quantity * $order_price;
-    
+
             $existingItem = $existingItems->firstWhere('product_id', $productId);
-    
+
             if ($existingItem) {
                 $existingItem->update([
                     'quantity' => $quantity,
@@ -403,11 +413,26 @@ class OrderController extends Controller
                 ]);
             }
         }
-    
+
         $existingItems->whereNotIn('product_id', $newProductIds)->each(function ($item) {
             $item->delete();
         });
-    
+
+        // Simpan ke tabel profit_loss jika status adalah "Lunas"
+        if ($order->status === 'Lunas') {
+            Profit::updateOrCreate(
+                ['order_id' => $order->id],
+                [
+                    'cash_id' => $order->cash_id,
+                    'date' => $order->order_date,
+                    'category' => 'tambah',
+                    'amount' => $order->total_cost,
+                ]
+            );
+        }
+
+
+
         // Simpan log histori
         $newData = $order->refresh()->toArray();
         $loggedInUserId = Auth::id();
@@ -419,10 +444,10 @@ class OrderController extends Controller
             json_encode($oldData),
             json_encode($newData)
         );
-    
+
         return response()->json(['success' => true, 'message' => 'Penjualan berhasil diperbarui.']);
     }
-    
+
 
 
 

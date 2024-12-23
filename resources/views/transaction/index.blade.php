@@ -87,9 +87,9 @@
 
                                         <td>
                                             <a class="btn btn-warning btn-sm" href="{{ route('transactions.show', $p->id) }}"><i class="fa fa-eye"></i> Show</a>
-                                            @can('supplier-edit')
+                                            <!-- @can('supplier-edit')
                                             <a class="btn btn-primary btn-sm" href="{{ route('transactions.edit', $p->id) }}"><i class="fa fa-edit"></i> Edit</a>
-                                            @endcan
+                                            @endcan -->
                                             @can('supplier-delete')
                                             <button type="button" class="btn btn-danger btn-sm" onclick="confirmDelete({{ $p->id }})"><i class="fa fa-trash"></i> Delete</button>
                                             <form id="delete-form-{{ $p->id }}" method="POST" action="{{ route('transactions.destroy', $p->id) }}" style="display:none;">
@@ -130,7 +130,7 @@
         });
     }
 </script>
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 <script src="{{ asset('template/back/dist/libs/datatables.net/js/jquery.dataTables.min.js') }}"></script>
 <script src="{{ asset('template/back/dist/js/datatable/datatable-basic.init.js') }}"></script>
 @endpush

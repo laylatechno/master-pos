@@ -553,19 +553,44 @@ class ReportController extends Controller
         ));
     }
 
-    // Export to Excel
     public function exportExcelProfit(Request $request)
     {
         $startDate = $request->get('start_date', now()->format('Y-m-d'));
         $endDate = $request->get('end_date', now()->format('Y-m-d'));
         $category = $request->get('category');
-        $cashIds = $request->get('cash_id');
+        $cashIds = $request->get('cash_id', []); // Default kosong jika tidak ada input
     
-        // Pastikan cash_id adalah array
-        $cashIds = is_array($cashIds) ? $cashIds : [$cashIds];
+        // Jika cash_id kosong, ambil semua data tanpa filter kas
+        $cashIds = empty($cashIds) ? null : (is_array($cashIds) ? $cashIds : [$cashIds]);
     
+        // Inisiasi data untuk export
+        $profitQuery = Profit::query();
+    
+        // Filter tanggal
+        $profitQuery->whereBetween('date', [$startDate, $endDate]);
+    
+        // Filter kategori
+        if ($category) {
+            $profitQuery->where('category', $category);
+        }
+    
+        // Filter cash_id jika ada
+        if ($cashIds) {
+            $profitQuery->whereIn('cash_id', $cashIds);
+        }
+    
+        // Ambil data
+        $profits = $profitQuery->get();
+    
+        // Jika data kosong, kirimkan respons atau pesan error
+        if ($profits->isEmpty()) {
+            return redirect()->back()->with('error', 'Data tidak ditemukan untuk filter yang dipilih.');
+        }
+    
+        // Export data ke Excel
         return Excel::download(new ProfitReportExport($startDate, $endDate, $category, $cashIds), 'Laporan_Keuntungan.xlsx');
     }
+    
     
 
     public function exportPdfProfit(Request $request)
@@ -610,13 +635,17 @@ class ReportController extends Controller
 
     public function previewPdfProfit(Request $request)
     {
+        
+
         $startDate = $request->get('start_date', now()->format('Y-m-d'));
         $endDate = $request->get('end_date', now()->format('Y-m-d'));
         $category = $request->get('category');
-        $cashIds = $request->get('cash_id');
+        $cashIds = $request->get('cash_id', []);  // Menangani cash_id jika kosong
     
         // Pastikan cash_id adalah array, jika hanya satu nilai yang dipilih
-        $cashIds = is_array($cashIds) ? $cashIds : [$cashIds];
+        if ($cashIds && !is_array($cashIds)) {
+            $cashIds = [$cashIds];  // Ubah menjadi array jika hanya satu nilai
+        }
     
         // Ambil data profit berdasarkan tanggal, kategori, dan cash_id yang diberikan
         $profitLoss = Profit::with(['cash', 'transaction', 'order', 'purchase'])
@@ -627,7 +656,7 @@ class ReportController extends Controller
             $profitLoss->where('category', $category);
         }
     
-        // Filter berdasarkan cash_id jika ada
+        // Hanya menerapkan filter cash_id jika tidak kosong (bisa dipilih semua jika kosong)
         if (!empty($cashIds)) {
             $profitLoss->whereIn('cash_id', $cashIds);
         }
@@ -640,16 +669,17 @@ class ReportController extends Controller
             return view('error.no_data'); // Tampilkan pesan jika data kosong
         }
     
-        $title = "Laporan Keuntungan";
-        $subtitle = "Menu Laporan Keuntungan";
+        $title = "Laporan Laba Rugi";
+        $subtitle = "Menu Laporan Laba Rugi";
     
         // Buat PDF
         $pdf = Pdf::loadView('report.profit_report.pdf', compact('profitLoss', 'title', 'subtitle', 'startDate', 'endDate'))
             ->setPaper('a4', 'landscape');
     
         // Tampilkan PDF dalam browser
-        return $pdf->stream('Laporan_Keuntungan.pdf');
+        return $pdf->stream('Laporan_Laba_Rugi.pdf');
     }
+    
     
 
 
