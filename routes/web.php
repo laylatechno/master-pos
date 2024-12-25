@@ -77,6 +77,14 @@ Route::group(['middleware' => ['auth']], function () {
     Route::get('/report/profit-reports/preview-pdf', [ReportController::class, 'previewPdfProfit'])->name('report.profit_reports.preview_pdf');
 
 
+    
+
+    Route::get('/report/top_product_reports', [ReportController::class, 'top_product_report'])->name('report.top_product_reports');
+    Route::get('/report/top_product-reports/export', [ReportController::class, 'exportExcelTopProduct'])->name('report.top_product_reports.export');
+    Route::get('/report/top_product-reports/export-pdf', [ReportController::class, 'exportPdfTopProduct'])->name('report.top_product_reports.export_pdf');
+    Route::get('/report/top_product-reports/preview-pdf', [ReportController::class, 'previewPdfTopProduct'])->name('report.top_product_reports.preview_pdf');
+
+
 
 
     Route::resource('transactions', TransactionController::class);

@@ -10,18 +10,16 @@ use App\Exports\PurchaseReportExport;
 use App\Exports\OrderReportExport;
 use App\Exports\ProductReportExport;
 use App\Exports\ProfitReportExport;
+use App\Exports\TopProductReportExport;
 use App\Models\Cash;
+use App\Models\Category;
 use App\Models\Customer;
+use App\Models\OrderItem;
 use App\Models\Profit;
 use App\Models\Supplier;
-use App\Models\Transaction;
-use App\Models\TransactionCategory;
 use Maatwebsite\Excel\Facades\Excel;
 use Barryvdh\DomPDF\Facade\Pdf;
-
-
-
-
+use Illuminate\Support\Facades\DB;
 
 class ReportController extends Controller
 {
@@ -33,6 +31,7 @@ class ReportController extends Controller
         $this->middleware('permission:orderreport-list', ['only' => ['order_report']]);
         $this->middleware('permission:productreport-list', ['only' => ['product_report']]);
         $this->middleware('permission:profitreport-list', ['only' => ['profit_report']]);
+        $this->middleware('permission:topproductreport-list', ['only' => ['top_product_report']]);
     }
 
 
@@ -545,7 +544,7 @@ class ReportController extends Controller
         $cashes = Cash::all();
 
         // Kirim variabel ke tampilan
-        return view('report.profit_report.index', compact(
+        return view('report.top_product_report.index', compact(
             'title',
             'subtitle',
             'cashes',
@@ -559,39 +558,37 @@ class ReportController extends Controller
         $endDate = $request->get('end_date', now()->format('Y-m-d'));
         $category = $request->get('category');
         $cashIds = $request->get('cash_id', []); // Default kosong jika tidak ada input
-    
+
         // Jika cash_id kosong, ambil semua data tanpa filter kas
         $cashIds = empty($cashIds) ? null : (is_array($cashIds) ? $cashIds : [$cashIds]);
-    
+
         // Inisiasi data untuk export
         $profitQuery = Profit::query();
-    
+
         // Filter tanggal
         $profitQuery->whereBetween('date', [$startDate, $endDate]);
-    
+
         // Filter kategori
         if ($category) {
             $profitQuery->where('category', $category);
         }
-    
+
         // Filter cash_id jika ada
         if ($cashIds) {
             $profitQuery->whereIn('cash_id', $cashIds);
         }
-    
+
         // Ambil data
         $profits = $profitQuery->get();
-    
+
         // Jika data kosong, kirimkan respons atau pesan error
         if ($profits->isEmpty()) {
             return redirect()->back()->with('error', 'Data tidak ditemukan untuk filter yang dipilih.');
         }
-    
+
         // Export data ke Excel
-        return Excel::download(new ProfitReportExport($startDate, $endDate, $category, $cashIds), 'Laporan_Keuntungan.xlsx');
+        return Excel::download(new ProfitReportExport($startDate, $endDate, $category, $cashIds), 'Laporan_Produk_Terlaris.xlsx');
     }
-    
-    
 
     public function exportPdfProfit(Request $request)
     {
@@ -614,73 +611,249 @@ class ReportController extends Controller
             })
             ->orderBy('date', 'asc')
             ->get();
-    
+
         // Menyiapkan data untuk dikirim ke view
         $title = "Laporan Laba Rugi";
         $subtitle = "Menu Laporan Laba Rugi";
-    
+
         // Mengambil semua data kas (untuk digunakan di dalam view jika perlu)
         $cashes = Cash::all();
-    
+
         // Load view PDF dan kirimkan data ke view dengan pengaturan orientasi dan ukuran kertas A4 landscape
-        $pdf = PDF::loadView('report.profit_report.pdf', compact('profitLoss', 'title', 'subtitle', 'cashes'))
+        $pdf = PDF::loadView('report.top_product_report.pdf', compact('profitLoss', 'title', 'subtitle', 'cashes'))
             ->setPaper('a4', 'landscape'); // Menetapkan ukuran kertas A4 dengan orientasi landscape
-    
+
         // Mengunduh PDF
         return $pdf->download('laporan_laba_rugi.pdf');
     }
-    
-
-
 
     public function previewPdfProfit(Request $request)
     {
-        
+
 
         $startDate = $request->get('start_date', now()->format('Y-m-d'));
         $endDate = $request->get('end_date', now()->format('Y-m-d'));
         $category = $request->get('category');
         $cashIds = $request->get('cash_id', []);  // Menangani cash_id jika kosong
-    
+
         // Pastikan cash_id adalah array, jika hanya satu nilai yang dipilih
         if ($cashIds && !is_array($cashIds)) {
             $cashIds = [$cashIds];  // Ubah menjadi array jika hanya satu nilai
         }
-    
+
         // Ambil data profit berdasarkan tanggal, kategori, dan cash_id yang diberikan
         $profitLoss = Profit::with(['cash', 'transaction', 'order', 'purchase'])
             ->whereBetween('date', [$startDate, $endDate]);
-    
+
         // Filter berdasarkan kategori jika ada
         if ($category) {
             $profitLoss->where('category', $category);
         }
-    
+
         // Hanya menerapkan filter cash_id jika tidak kosong (bisa dipilih semua jika kosong)
         if (!empty($cashIds)) {
             $profitLoss->whereIn('cash_id', $cashIds);
         }
-    
+
         // Ambil data dan urutkan berdasarkan tanggal
         $profitLoss = $profitLoss->orderBy('date', 'desc')->get();
-    
+
         // Cek apakah data kosong
         if ($profitLoss->isEmpty()) {
             return view('error.no_data'); // Tampilkan pesan jika data kosong
         }
-    
+
         $title = "Laporan Laba Rugi";
         $subtitle = "Menu Laporan Laba Rugi";
-    
+
         // Buat PDF
         $pdf = Pdf::loadView('report.profit_report.pdf', compact('profitLoss', 'title', 'subtitle', 'startDate', 'endDate'))
             ->setPaper('a4', 'landscape');
-    
+
         // Tampilkan PDF dalam browser
         return $pdf->stream('Laporan_Laba_Rugi.pdf');
     }
+
+
+
+
+    public function top_product_report(Request $request)
+    {
+        $title = "Laporan Produk Terlaris";
+        $subtitle = "Menu Laporan Produk Terlaris";
+
+        // Ambil tanggal awal dan akhir dari request, jika tidak ada gunakan awal dan akhir bulan
+        $startDate = $request->start_date ?? now()->startOfMonth()->format('Y-m-d');
+        $endDate = $request->end_date ?? now()->endOfMonth()->format('Y-m-d');
+        $status = $request->status; // Status filter dari order
+        $categoryId = $request->category; // ID kategori filter
+
+        // Ambil data order_items dengan join produk
+        $topProduct = OrderItem::with('product.category') // Relasi dengan produk dan kategori
+            ->whereHas('order', function ($query) use ($startDate, $endDate, $status) {
+                // Filter berdasarkan tanggal order
+                $query->whereBetween('order_date', [$startDate, $endDate]);
+                if ($status) {
+                    $query->where('status', $status); // Filter berdasarkan status jika ada
+                }
+            })
+            ->when($categoryId, function ($query) use ($categoryId) {
+                // Filter berdasarkan kategori jika dipilih
+                $query->whereHas('product', function ($query) use ($categoryId) {
+                    $query->where('category_id', $categoryId);
+                });
+            })
+            ->select(
+                'product_id',
+                DB::raw('SUM(quantity) as total_quantity'), // Hitung total quantity
+                DB::raw('SUM(total_price) as total_price') // Hitung total harga
+            )
+            ->groupBy('product_id') // Kelompokkan berdasarkan produk
+            ->orderByDesc('total_quantity') // Urutkan berdasarkan quantity tertinggi
+            ->get();
+
+        // Ambil semua kategori untuk dropdown filter
+        $categories = Category::all();
+
+        // Return view dengan data yang diambil
+        return view('report.top_product_report.index', compact(
+            'title',
+            'subtitle',
+            'topProduct',
+            'categories',
+            'startDate',
+            'endDate',
+            'status',
+            'categoryId'
+        ));
+    }
+
+
+    public function exportExcelTopProduct(Request $request)
+    {
+        $startDate = $request->start_date ?? now()->startOfMonth()->format('Y-m-d');
+        $endDate = $request->end_date ?? now()->endOfMonth()->format('Y-m-d');
+        $status = $request->status;
+        $categoryId = $request->category;
     
+        $topProduct = OrderItem::with('product.category')
+            ->whereHas('order', function ($query) use ($startDate, $endDate, $status) {
+                $query->whereBetween('order_date', [$startDate, $endDate]);
+                if ($status) {
+                    $query->where('status', $status);
+                }
+            })
+            ->when($categoryId, function ($query) use ($categoryId) {
+                $query->whereHas('product', function ($query) use ($categoryId) {
+                    $query->where('category_id', $categoryId);
+                });
+            })
+            ->select('product_id', DB::raw('SUM(quantity) as total_quantity'), DB::raw('SUM(total_price) as total_price'))
+            ->groupBy('product_id')
+            ->orderByDesc('total_quantity')
+            ->get();
     
+        // Menambahkan data ke dalam laporan Excel
+        return Excel::download(new TopProductReportExport($topProduct), 'Laporan_Produk_Terlaris.xlsx');
+    }
+    
+
+    public function exportPdfTopProduct(Request $request)
+    {
+        $title = "Laporan Produk Terlaris";
+        $subtitle = "Menu Laporan Produk Terlaris";
+    
+        // Ambil tanggal awal dan akhir dari request, jika tidak ada gunakan awal dan akhir bulan
+        $startDate = $request->start_date ?? now()->startOfMonth()->format('Y-m-d');
+        $endDate = $request->end_date ?? now()->endOfMonth()->format('Y-m-d');
+        $status = $request->status; // Status filter dari order
+        $categoryId = $request->category; // ID kategori filter
+    
+        // Query untuk mendapatkan produk terlaris
+        $topProduct = OrderItem::with('product.category') // Relasi dengan produk dan kategori
+            ->whereHas('order', function ($query) use ($startDate, $endDate, $status) {
+                // Filter berdasarkan tanggal order
+                $query->whereBetween('order_date', [$startDate, $endDate]);
+                if ($status) {
+                    $query->where('status', $status); // Filter berdasarkan status jika ada
+                }
+            })
+            ->when($categoryId, function ($query) use ($categoryId) {
+                // Filter berdasarkan kategori jika dipilih
+                $query->whereHas('product', function ($query) use ($categoryId) {
+                    $query->where('category_id', $categoryId);
+                });
+            })
+            ->select(
+                'product_id',
+                DB::raw('SUM(quantity) as total_quantity'), // Hitung total quantity
+                DB::raw('SUM(total_price) as total_price') // Hitung total harga
+            )
+            ->groupBy('product_id') // Kelompokkan berdasarkan produk
+            ->orderByDesc('total_quantity') // Urutkan berdasarkan quantity tertinggi
+            ->get();
+    
+        // Generate PDF
+        $pdf = PDF::loadView('report.top_product_report.pdf', compact(
+            'title',
+            'subtitle',
+            'topProduct',
+            'startDate',
+            'endDate'
+        ))->setPaper('a4', 'landscape');
+    
+        // Unduh PDF
+        return $pdf->download('Laporan_Produk_Terlaris.pdf');
+    }
+    
+
+    public function previewPdfTopProduct(Request $request)
+    {
+        $title = "Laporan Produk Terlaris";
+        $subtitle = "Menu Laporan Produk Terlaris";
+    
+        // Ambil tanggal awal dan akhir dari request, jika tidak ada gunakan awal dan akhir bulan
+        $startDate = $request->start_date ?? now()->startOfMonth()->format('Y-m-d');
+        $endDate = $request->end_date ?? now()->endOfMonth()->format('Y-m-d');
+        $status = $request->status; // Status filter dari order
+        $categoryId = $request->category; // ID kategori filter
+    
+        // Ambil data order_items dengan join produk
+        $topProduct = OrderItem::with('product.category')
+            ->whereHas('order', function ($query) use ($startDate, $endDate, $status) {
+                $query->whereBetween('order_date', [$startDate, $endDate]);
+                if ($status) {
+                    $query->where('status', $status); // Filter berdasarkan status jika ada
+                }
+            })
+            ->when($categoryId, function ($query) use ($categoryId) {
+                $query->whereHas('product', function ($query) use ($categoryId) {
+                    $query->where('category_id', $categoryId);
+                });
+            })
+            ->select(
+                'product_id',
+                DB::raw('SUM(quantity) as total_quantity'), // Hitung total quantity
+                DB::raw('SUM(total_price) as total_price') // Hitung total harga
+            )
+            ->groupBy('product_id') // Kelompokkan berdasarkan produk
+            ->orderByDesc('total_quantity') // Urutkan berdasarkan quantity tertinggi
+            ->get();
+    
+        // Buat PDF
+        $pdf = Pdf::loadView('report.top_product_report.pdf', compact(
+            'title',
+            'subtitle',
+            'topProduct',
+            'startDate',
+            'endDate'
+        ))->setPaper('a4', 'landscape');
+    
+        // Tampilkan PDF dalam browser
+        return $pdf->stream('Laporan_Produk_Terlaris.pdf');
+    }
+    
+
 
 
 
