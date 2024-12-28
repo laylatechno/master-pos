@@ -544,7 +544,7 @@ class ReportController extends Controller
         $cashes = Cash::all();
 
         // Kirim variabel ke tampilan
-        return view('report.top_product_report.index', compact(
+        return view('report.profit_report.index', compact(
             'title',
             'subtitle',
             'cashes',
@@ -620,7 +620,7 @@ class ReportController extends Controller
         $cashes = Cash::all();
 
         // Load view PDF dan kirimkan data ke view dengan pengaturan orientasi dan ukuran kertas A4 landscape
-        $pdf = PDF::loadView('report.top_product_report.pdf', compact('profitLoss', 'title', 'subtitle', 'cashes'))
+        $pdf = PDF::loadView('report.profit_report.pdf', compact('profitLoss', 'title', 'subtitle', 'cashes'))
             ->setPaper('a4', 'landscape'); // Menetapkan ukuran kertas A4 dengan orientasi landscape
 
         // Mengunduh PDF
@@ -660,7 +660,7 @@ class ReportController extends Controller
 
         // Cek apakah data kosong
         if ($profitLoss->isEmpty()) {
-            return view('error.no_data'); // Tampilkan pesan jika data kosong
+            return view('errors.no_data'); // Tampilkan pesan jika data kosong
         }
 
         $title = "Laporan Laba Rugi";

@@ -65,7 +65,7 @@
                 <div class="card border-0 zoom-in shadow-sm" style="background-color: #d1e7dd; border-radius: 10px;">
                     <div class="card-body">
                         <div class="text-center d-flex flex-column align-items-center">
-                            <img src="{{ asset('template/back') }}/dist/images/icon/customer.png"
+                            <img src="{{ asset('template/back') }}/dist/images/icon/supplier.png"
                                 style="width: 80px; height: 80px; object-fit: cover; border-radius: 50%;"
                                 class="mb-3" alt="Customer Icon" />
                             <p class="fw-semibold fs-3 text-primary mb-1">Supplier</p>
@@ -81,7 +81,7 @@
                 <div class="card border-0 zoom-in shadow-sm" style="background-color: #d1e7dd; border-radius: 10px;">
                     <div class="card-body">
                         <div class="text-center d-flex flex-column align-items-center">
-                            <img src="{{ asset('template/back') }}/dist/images/icon/customer.png"
+                            <img src="{{ asset('template/back') }}/dist/images/icon/order.png"
                                 style="width: 80px; height: 80px; object-fit: cover; border-radius: 50%;"
                                 class="mb-3" alt="Customer Icon" />
                             <p class="fw-semibold fs-3 text-primary mb-1">Penjualan</p>
@@ -97,7 +97,7 @@
                 <div class="card border-0 zoom-in shadow-sm" style="background-color: #d1e7dd; border-radius: 10px;">
                     <div class="card-body">
                         <div class="text-center d-flex flex-column align-items-center">
-                            <img src="{{ asset('template/back') }}/dist/images/icon/customer.png"
+                            <img src="{{ asset('template/back') }}/dist/images/icon/purchase.png"
                                 style="width: 80px; height: 80px; object-fit: cover; border-radius: 50%;"
                                 class="mb-3" alt="Customer Icon" />
                             <p class="fw-semibold fs-3 text-primary mb-1">Pembelian</p>

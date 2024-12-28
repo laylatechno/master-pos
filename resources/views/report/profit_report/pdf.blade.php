@@ -85,9 +85,9 @@
                     @if($entry->transaction_id)
                     {{ $entry->transaction->name ?? 'N/A' }}
                     @elseif($entry->order_id)
-                    Penjualan - {{ $entry->order->description ?? 'N/A' }}
+                    Penjualan - {{ $entry->order->no_order ?? 'N/A' }}
                     @elseif($entry->purchase_id)
-                    Pembelian - {{ $entry->purchase->description ?? 'N/A' }}
+                    Pembelian - {{ $entry->purchase->no_purchase ?? 'N/A' }}
                     @else
                     'N/A'
                     @endif

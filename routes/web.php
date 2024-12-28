@@ -1,5 +1,5 @@
 <?php
-
+ 
 use App\Http\Controllers\AdjustmentController;
 use App\Http\Controllers\StockOpnameController;
 use App\Http\Controllers\CashController;
@@ -38,6 +38,12 @@ Route::get('/', function () {
 Route::get('/home', [HomeController::class, 'index'])->name('home');
 
 Route::group(['middleware' => ['auth']], function () {
+    
+
+
+  
+
+
     Route::get('/tutorial-status', [TutorialController::class, 'getTutorialStatus']);
     Route::post('/set-tutorial-status', [TutorialController::class, 'setTutorialStatus']);
 
